@@ -1,7 +1,8 @@
+#include "Macro.h"
 
 namespace jgw
 {
-    class BaseApp
+    class Window final
     {
     public:
     };
