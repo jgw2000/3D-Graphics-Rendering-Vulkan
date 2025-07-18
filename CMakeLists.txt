@@ -12,3 +12,7 @@ add_subdirectory(engine)
 add_executable(VulkanProject main.cpp)
 
 target_link_libraries(VulkanProject PUBLIC Engine)
+
+if(MSVC)
+    set_property(TARGET VulkanProject APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:MSVCRT")
+endif()
