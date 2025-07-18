@@ -1,0 +1,8 @@
+
+namespace jgw
+{
+    class BaseApp
+    {
+
+    };
+}
