@@ -1,16 +1,29 @@
 #pragma once
 
-#define GLFW_INCLUDE_NONE
-#include <glfw/glfw3.h>
+#include "Macro.h"
+#include "Window.h"
 
-#define GLFW_EXPOSE_NATIVE_WIN32
-#define GLFW_EXPOSE_NATIVE_WGL
+#include <memory>
 
 namespace jgw
 {
     class BaseApp
     {
     public:
+        CLASS_COPY_MOVE_DELETE(BaseApp)
+
+        BaseApp();
+        BaseApp(const WindowConfig& config);
+
         void Run();
+
+    protected:
+        virtual bool OnInit() { return true; }
+        virtual void OnKey(int key, int scancode, int action, int mods) {}
+
+    private:
+        bool Initialize();
+
+        std::unique_ptr<Window> windowPtr;
     };
 }

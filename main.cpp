@@ -2,7 +2,11 @@
 
 int main()
 {
-    jgw::BaseApp app;
+    jgw::WindowConfig config;
+    config.title = "Vulkan";
+
+    jgw::BaseApp app(config);
     app.Run();
+
     return 0;
 }
