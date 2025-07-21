@@ -49,6 +49,8 @@ namespace jgw
 
         if (window == nullptr)
             return false;
+
+        glfwGetFramebufferSize(window, &windowConfig.width, &windowConfig.height);
     
         return true;
     }

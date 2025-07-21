@@ -6,13 +6,13 @@ project(VulkanProject VERSION 1.0)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+find_package(Vulkan REQUIRED SPIRV-Tools)
+
+include_directories(${Vulkan_INCLUDE_DIR})
+
 add_subdirectory(engine)
 
 # add the executable
 add_executable(VulkanProject main.cpp)
 
 target_link_libraries(VulkanProject PUBLIC Engine)
-
-if(MSVC)
-    set_property(TARGET VulkanProject APPEND PROPERTY LINK_FLAGS "/NODEFAULTLIB:MSVCRT")
-endif()

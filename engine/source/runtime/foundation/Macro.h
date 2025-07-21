@@ -1,4 +1,3 @@
-
 namespace jgw
 {
     #define CLASS_DEF(T)                 \
