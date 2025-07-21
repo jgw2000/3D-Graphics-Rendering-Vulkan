@@ -2,16 +2,9 @@
 
 namespace jgw
 {
-    BaseApp::BaseApp()
-    {
-        WindowConfig config = {};
-        windowPtr = std::make_unique<Window>(config);
-		contextPtr = std::make_unique<RenderContext>();
-    }
-
     BaseApp::BaseApp(const WindowConfig& config)
     {
-        windowPtr = std::make_unique<Window>(config);
+        contextPtr = std::make_unique<RenderContext>(config);
     }
 
     void BaseApp::Run()
@@ -19,19 +12,18 @@ namespace jgw
         if (!Initialize())
             return;
 
-        GLFWwindow* handle = windowPtr->GetHandle();
-        while (!glfwWindowShouldClose(handle))
-        {
-            glfwPollEvents();
-        }
+        contextPtr->MainLoop();
     }
 
     bool BaseApp::Initialize()
     {
-        if (!windowPtr->Initialize())
+        auto instanceLayers = GetInstanceLayers();
+        auto instanceExtensions = GetInstanceExtensions();
+
+        if (!contextPtr->Initialize(instanceLayers, instanceExtensions))
             return false;
 
-        GLFWwindow* handle = windowPtr->GetHandle();
+		GLFWwindow* handle = contextPtr->GetWindowHandle();
         glfwSetWindowUserPointer(handle, this);
         glfwSetKeyCallback(handle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
             BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
@@ -41,26 +33,27 @@ namespace jgw
                 glfwSetWindowShouldClose(window, GLFW_TRUE);
         });
 
-		auto instanceLayers = GetInstanceLayers();
-		auto instanceExtensions = GetInstanceExtensions();
-
-        if (!contextPtr->Initialize(instanceLayers, instanceExtensions))
-            return false;
-
         return true;
     }
 
     std::vector<const char*> BaseApp::GetInstanceLayers() const
     {
 #if defined(_DEBUG)
-		return { "VK_LAYER_KHRONOS_validation" };
+        return { "VK_LAYER_KHRONOS_validation" };
 #else
         return { };
 #endif
-	}
+    }
 
     std::vector<const char*> BaseApp::GetInstanceExtensions() const
     {
-        return { };
-	}
+        uint32_t glfwExtensionCount = 0;
+        const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+        std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+#if defined(_DEBUG)
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
+        return extensions;
+    }
 }

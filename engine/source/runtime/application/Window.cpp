@@ -25,11 +25,11 @@ namespace jgw
         switch (windowConfig.mode)
         {
         case EWindowMode::Windowed:
-            window = glfwCreateWindow(windowConfig.width, windowConfig.height, windowConfig.title.c_str(), nullptr, nullptr);
+            handle = glfwCreateWindow(windowConfig.width, windowConfig.height, windowConfig.title.c_str(), nullptr, nullptr);
             break;
 
         case EWindowMode::Fullscreen:
-            window = glfwCreateWindow(windowConfig.width, windowConfig.height, windowConfig.title.c_str(), glfwGetPrimaryMonitor(), nullptr);
+            handle = glfwCreateWindow(windowConfig.width, windowConfig.height, windowConfig.title.c_str(), glfwGetPrimaryMonitor(), nullptr);
             break;
 
         case EWindowMode::WindowedFullscreen:
@@ -38,7 +38,7 @@ namespace jgw
             glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
             glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 
-            window = glfwCreateWindow(mode->width, mode->height, windowConfig.title.c_str(), monitor, nullptr);
+            handle = glfwCreateWindow(mode->width, mode->height, windowConfig.title.c_str(), monitor, nullptr);
             windowConfig.width = mode->width;
             windowConfig.height = mode->height;
             break;
@@ -47,17 +47,17 @@ namespace jgw
             break;
         }
 
-        if (window == nullptr)
+        if (handle == nullptr)
             return false;
 
-        glfwGetFramebufferSize(window, &windowConfig.width, &windowConfig.height);
+        glfwGetFramebufferSize(handle, &windowConfig.width, &windowConfig.height);
     
         return true;
     }
 
     void Window::Destroy()
     {
-        glfwDestroyWindow(window);
+        glfwDestroyWindow(handle);
         glfwTerminate();
     }
 }

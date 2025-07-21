@@ -33,13 +33,13 @@ namespace jgw
         Window(const WindowConfig& config);
         ~Window();
 
-        GLFWwindow* GetHandle() const { return window; }
+        GLFWwindow* GetHandle() const { return handle; }
 
         bool Initialize();
         void Destroy();
 
     private:
-        GLFWwindow* window = nullptr;
+        GLFWwindow* handle = nullptr;
         WindowConfig windowConfig = {};
     };
 }

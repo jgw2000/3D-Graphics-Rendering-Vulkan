@@ -1,10 +1,8 @@
 #pragma once
 
 #include "Macro.h"
-#include "Window.h"
 #include "RenderContext.h"
 
-#include <memory>
 #include <vector>
 
 namespace jgw
@@ -14,8 +12,7 @@ namespace jgw
     public:
         CLASS_COPY_MOVE_DELETE(BaseApp)
 
-        BaseApp();
-        BaseApp(const WindowConfig& config);
+        BaseApp(const WindowConfig& config = {});
 
         void Run();
 
@@ -28,7 +25,6 @@ namespace jgw
     private:
         bool Initialize();
 
-        std::unique_ptr<Window> windowPtr;
         std::unique_ptr<RenderContext> contextPtr;
     };
 }
