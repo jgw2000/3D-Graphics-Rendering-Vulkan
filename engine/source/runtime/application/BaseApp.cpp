@@ -17,13 +17,10 @@ namespace jgw
 
     bool BaseApp::Initialize()
     {
-        auto instanceLayers = GetInstanceLayers();
-        auto instanceExtensions = GetInstanceExtensions();
-
-        if (!contextPtr->Initialize(instanceLayers, instanceExtensions))
+        if (!contextPtr->InitWindow())
             return false;
 
-		GLFWwindow* handle = contextPtr->GetWindowHandle();
+        GLFWwindow* handle = contextPtr->GetWindowHandle();
         glfwSetWindowUserPointer(handle, this);
         glfwSetKeyCallback(handle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
             BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
@@ -31,7 +28,13 @@ namespace jgw
 
             if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
                 glfwSetWindowShouldClose(window, GLFW_TRUE);
-        });
+            });
+
+        auto instanceLayers = GetInstanceLayers();
+        auto instanceExtensions = GetInstanceExtensions();
+
+        if (!contextPtr->InitVulkan(instanceLayers, instanceExtensions))
+            return false;
 
         return true;
     }

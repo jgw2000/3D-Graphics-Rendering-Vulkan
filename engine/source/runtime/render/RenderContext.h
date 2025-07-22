@@ -18,7 +18,9 @@ namespace jgw
         RenderContext(const WindowConfig& config = {});
         ~RenderContext();
 
-        bool Initialize(
+        bool InitWindow();
+
+        bool InitVulkan(
             const std::vector<const char*>& requestInstanceLayers,
             const std::vector<const char*>& requestInstanceExtensions,
             uint32_t apiVersion = VK_API_VERSION_1_3
@@ -28,17 +30,24 @@ namespace jgw
 
         GLFWwindow* GetWindowHandle() const
         {
-			return windowPtr->GetHandle();
+            return windowPtr->GetHandle();
         }
 
     private:
         bool CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const;
         bool CheckInstanceExtensionSupport(const std::vector<const char*>& requestInstanceExtensions) const;
 
+        uint32_t GetQueueFamilyIndex(vk::QueueFlags queueFlags) const;
+
     private:
         std::unique_ptr<Window> windowPtr;
 
         vk::Instance instance{};
         vk::SurfaceKHR surface{};
+        vk::PhysicalDevice physicalDevice{};
+        vk::Device device{};
+        vk::Queue graphicsQueue{};
+        vk::Queue computeQueue{};
+        vk::Queue transferQueue{};
     };
 }
