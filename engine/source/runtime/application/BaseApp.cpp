@@ -4,23 +4,28 @@ namespace jgw
 {
     BaseApp::BaseApp(const WindowConfig& config)
     {
-        contextPtr = std::make_unique<RenderContext>(config);
+        windowPtr = std::make_unique<Window>(config);
+        contextPtr = std::make_unique<VulkanContext>();
     }
 
-    void BaseApp::Run()
+    void BaseApp::Start()
     {
         if (!Initialize())
             return;
 
-        contextPtr->MainLoop();
+        GLFWwindow* handle = windowPtr->GetHandle();
+        while (!glfwWindowShouldClose(handle))
+        {
+            glfwPollEvents();
+        }
     }
 
     bool BaseApp::Initialize()
     {
-        if (!contextPtr->InitWindow())
+        if (!windowPtr->Initialize())
             return false;
 
-        GLFWwindow* handle = contextPtr->GetWindowHandle();
+        GLFWwindow* handle = windowPtr->GetHandle();
         glfwSetWindowUserPointer(handle, this);
         glfwSetKeyCallback(handle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
             BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
@@ -32,8 +37,9 @@ namespace jgw
 
         auto instanceLayers = GetInstanceLayers();
         auto instanceExtensions = GetInstanceExtensions();
+        auto deviceExtensions = GetDeviceExtensions();
 
-        if (!contextPtr->InitVulkan(instanceLayers, instanceExtensions))
+        if (!contextPtr->Initialize(handle, instanceLayers, instanceExtensions, deviceExtensions))
             return false;
 
         return true;
@@ -58,5 +64,10 @@ namespace jgw
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
         return extensions;
+    }
+
+    std::vector<const char*> BaseApp::GetDeviceExtensions() const
+    {
+        return { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
     }
 }

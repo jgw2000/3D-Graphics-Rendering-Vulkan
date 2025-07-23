@@ -2,6 +2,7 @@
 
 #include "Macro.h"
 #include "Window.h"
+#include "VulkanSwapchain.h"
 
 #define VULKAN_HPP_NO_CONSTRUCTORS
 #include <vulkan/vulkan.hpp>
@@ -10,44 +11,40 @@
 
 namespace jgw
 {
-    class RenderContext final
+    class VulkanContext final
     {
     public:
-        CLASS_COPY_MOVE_DELETE(RenderContext)
+        CLASS_COPY_MOVE_DELETE(VulkanContext)
 
-        RenderContext(const WindowConfig& config = {});
-        ~RenderContext();
+        VulkanContext();
+        ~VulkanContext();
 
-        bool InitWindow();
-
-        bool InitVulkan(
+        bool Initialize(
+            GLFWwindow* handle,
             const std::vector<const char*>& requestInstanceLayers,
             const std::vector<const char*>& requestInstanceExtensions,
+            const std::vector<const char*>& requestDeviceExtensions,
             uint32_t apiVersion = VK_API_VERSION_1_3
         );
-
-        void MainLoop();
-
-        GLFWwindow* GetWindowHandle() const
-        {
-            return windowPtr->GetHandle();
-        }
 
     private:
         bool CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const;
         bool CheckInstanceExtensionSupport(const std::vector<const char*>& requestInstanceExtensions) const;
+        bool CheckDeviceExtensionSupport(const std::vector<const char*>& requestDeviceExtensions) const;
 
         uint32_t GetQueueFamilyIndex(vk::QueueFlags queueFlags) const;
 
     private:
-        std::unique_ptr<Window> windowPtr;
-
         vk::Instance instance{};
         vk::SurfaceKHR surface{};
         vk::PhysicalDevice physicalDevice{};
         vk::Device device{};
         vk::Queue graphicsQueue{};
-        vk::Queue computeQueue{};
-        vk::Queue transferQueue{};
+        vk::CommandPool graphicsCommandPool{};
+        vk::CommandBuffer graphicsCommandBuffer{};
+
+        uint32_t graphicsFamilyIndex = 0;
+
+        std::unique_ptr<VulkanSwapchain> swapchainPtr;
     };
 }

@@ -6,7 +6,7 @@ int main()
     config.title = "Vulkan";
 
     jgw::BaseApp app(config);
-    app.Run();
+    app.Start();
 
     return 0;
 }

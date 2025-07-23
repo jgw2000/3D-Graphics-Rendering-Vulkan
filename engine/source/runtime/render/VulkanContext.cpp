@@ -1,6 +1,6 @@
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 
-#include "RenderContext.h"
+#include "VulkanContext.h"
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
@@ -9,15 +9,17 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 namespace jgw
 {
-    RenderContext::RenderContext(const WindowConfig& config)
-        : windowPtr(std::make_unique<Window>(config))
+    VulkanContext::VulkanContext()
     {
     }
 
-    RenderContext::~RenderContext()
+    VulkanContext::~VulkanContext()
     {
+        swapchainPtr->Destroy();
+
         if (device)
         {
+            device.destroyCommandPool(graphicsCommandPool);
             device.destroy();
         }
 
@@ -29,26 +31,17 @@ namespace jgw
         }
     }
 
-    bool RenderContext::InitWindow()
-    {
-        if (!windowPtr->Initialize())
-        {
-            spdlog::error("Failed to initialize window");
-            return false;
-        }
-
-        return true;
-    }
-
-    bool RenderContext::InitVulkan(
+    bool VulkanContext::Initialize(
+        GLFWwindow* handle,
         const std::vector<const char*>& requestInstanceLayers,
         const std::vector<const char*>& requestInstanceExtensions,
+        const std::vector<const char*>& requestDeviceExtensions,
         uint32_t apiVersion
     )
     {
         try
         {
-            // initialize minimal set of function pointers
+            // Create vulkan instance
             VULKAN_HPP_DEFAULT_DISPATCHER.init();
 
             if (!CheckInstanceLayerSupport(requestInstanceLayers) || !CheckInstanceExtensionSupport(requestInstanceExtensions))
@@ -74,11 +67,11 @@ namespace jgw
 
             instance = vk::createInstance(instanceCI);
 
-            // initialize function pointers for instance
             VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
 
+            // Create surface
             VkSurfaceKHR sur;
-            auto result = glfwCreateWindowSurface(static_cast<VkInstance>(instance), windowPtr->GetHandle(), nullptr, &sur);
+            auto result = glfwCreateWindowSurface(static_cast<VkInstance>(instance), handle, nullptr, &sur);
             if (result != VK_SUCCESS)
             {
                 spdlog::error("Failed to create window surface: {}", vk::to_string(static_cast<vk::Result>(result)));
@@ -86,6 +79,7 @@ namespace jgw
             }
             surface = vk::SurfaceKHR(sur);
 
+            // Create physical device
             auto physicalDevices = instance.enumeratePhysicalDevices();
             for (const auto& pd : physicalDevices)
             {
@@ -105,43 +99,55 @@ namespace jgw
 
             spdlog::info("Using physical device: {}", physicalDevice.getProperties().deviceName.data());
 
+            if (!CheckDeviceExtensionSupport(requestDeviceExtensions))
+                return false;
+
+            // Create logical device
             std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
 
-            // Graphics queue
+            graphicsFamilyIndex = GetQueueFamilyIndex(vk::QueueFlagBits::eGraphics);
             vk::DeviceQueueCreateInfo deviceQueueCI{
-                .queueFamilyIndex = GetQueueFamilyIndex(vk::QueueFlagBits::eGraphics),
+                .queueFamilyIndex = graphicsFamilyIndex,
                 .queueCount = 1,
                 .pQueuePriorities = new float[1] { 1.0f } // Default priority
             };
             queueCreateInfos.push_back(deviceQueueCI);
-
-            // Compute queue
-            deviceQueueCI.queueFamilyIndex = GetQueueFamilyIndex(vk::QueueFlagBits::eCompute);
-            queueCreateInfos.push_back(deviceQueueCI);
-
-            // Transfer queue
-            deviceQueueCI.queueFamilyIndex = GetQueueFamilyIndex(vk::QueueFlagBits::eTransfer);
-            queueCreateInfos.push_back(deviceQueueCI);
-
 
             vk::DeviceCreateInfo deviceCI{
                 .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
                 .pQueueCreateInfos = queueCreateInfos.data(),
                 .enabledLayerCount = static_cast<uint32_t>(requestInstanceLayers.size()),
                 .ppEnabledLayerNames = requestInstanceLayers.data(),
-                .enabledExtensionCount = 0, // No device extensions requested
-                .ppEnabledExtensionNames = nullptr,
+                .enabledExtensionCount = static_cast<uint32_t>(requestDeviceExtensions.size()),
+                .ppEnabledExtensionNames = requestDeviceExtensions.data(),
                 .pEnabledFeatures = nullptr // No specific features requested
             };
 
             device = physicalDevice.createDevice(deviceCI);
 
-            // initialize function pointers for device
             VULKAN_HPP_DEFAULT_DISPATCHER.init(device);
 
-            graphicsQueue = device.getQueue(queueCreateInfos[0].queueFamilyIndex, 0);
-            computeQueue = device.getQueue(queueCreateInfos[1].queueFamilyIndex, 0);
-            transferQueue = device.getQueue(queueCreateInfos[2].queueFamilyIndex, 0);
+            // Create command pool and command buffer
+            graphicsQueue = device.getQueue(graphicsFamilyIndex, 0);
+
+            vk::CommandPoolCreateInfo commandPoolCI{
+                .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+                .queueFamilyIndex = graphicsFamilyIndex
+            };
+
+            graphicsCommandPool = device.createCommandPool(commandPoolCI);
+
+            vk::CommandBufferAllocateInfo commandBufferAI{
+                .commandPool = graphicsCommandPool,
+                .level = vk::CommandBufferLevel::ePrimary,
+                .commandBufferCount = 1
+            };
+
+            graphicsCommandBuffer = device.allocateCommandBuffers(commandBufferAI)[0];
+
+            // Create swapchain
+            swapchainPtr = std::make_unique<VulkanSwapchain>(physicalDevice, device, surface);
+            swapchainPtr->Create(handle);
         }
         catch (const vk::SystemError& err)
         {
@@ -153,16 +159,7 @@ namespace jgw
         return true;
     }
 
-    void RenderContext::MainLoop()
-    {
-        GLFWwindow* handle = windowPtr->GetHandle();
-        while (!glfwWindowShouldClose(handle))
-        {
-            glfwPollEvents();
-        }
-    }
-
-    bool RenderContext::CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const
+    bool VulkanContext::CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const
     {
         if (requestInstanceLayers.empty())
             return true;
@@ -190,7 +187,7 @@ namespace jgw
         return true;
     }
 
-    bool RenderContext::CheckInstanceExtensionSupport(const std::vector<const char*>& requestInstanceExtensions) const
+    bool VulkanContext::CheckInstanceExtensionSupport(const std::vector<const char*>& requestInstanceExtensions) const
     {
         if (requestInstanceExtensions.empty())
             return true;
@@ -217,7 +214,34 @@ namespace jgw
         return true;
     }
 
-    uint32_t RenderContext::GetQueueFamilyIndex(vk::QueueFlags queueFlags) const
+    bool VulkanContext::CheckDeviceExtensionSupport(const std::vector<const char*>& requestDeviceExtensions) const
+    {
+        if (requestDeviceExtensions.empty())
+            return true;
+
+        auto availableExtensions = physicalDevice.enumerateDeviceExtensionProperties();
+        for (const auto& extension : requestDeviceExtensions)
+        {
+            bool found = false;
+            for (const auto& availableExtension : availableExtensions)
+            {
+                if (strcmp(extension, availableExtension.extensionName.data()) == 0)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                spdlog::error("Device extension {} not found", extension);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    uint32_t VulkanContext::GetQueueFamilyIndex(vk::QueueFlags queueFlags) const
     {
         auto queueFamilies = physicalDevice.getQueueFamilyProperties();
         

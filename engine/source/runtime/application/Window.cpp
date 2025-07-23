@@ -39,8 +39,6 @@ namespace jgw
             glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 
             handle = glfwCreateWindow(mode->width, mode->height, windowConfig.title.c_str(), monitor, nullptr);
-            windowConfig.width = mode->width;
-            windowConfig.height = mode->height;
             break;
 
         default:

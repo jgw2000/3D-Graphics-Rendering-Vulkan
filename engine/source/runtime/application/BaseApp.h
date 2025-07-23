@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Macro.h"
-#include "RenderContext.h"
+#include "Window.h"
+#include "VulkanContext.h"
 
 #include <vector>
 
@@ -14,17 +15,18 @@ namespace jgw
 
         BaseApp(const WindowConfig& config = {});
 
-        void Run();
+        void Start();
 
     protected:
+        virtual bool Initialize();
         virtual void OnKey(int key, int scancode, int action, int mods) {}
 
         virtual std::vector<const char*> GetInstanceLayers() const;
         virtual std::vector<const char*> GetInstanceExtensions() const;
+        virtual std::vector<const char*> GetDeviceExtensions() const;
 
     private:
-        bool Initialize();
-
-        std::unique_ptr<RenderContext> contextPtr;
+        std::unique_ptr<Window> windowPtr;
+        std::unique_ptr<VulkanContext> contextPtr;
     };
 }
