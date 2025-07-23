@@ -19,6 +19,10 @@ namespace jgw
 
         if (device)
         {
+            for (auto& fence : fences) device.destroy(fence);
+            for (auto& semaphore : imageAvailableSemaphores) device.destroy(semaphore);
+            for (auto& semaphore : renderFinishedSemaphores) device.destroy(semaphore);
+
             device.destroyCommandPool(graphicsCommandPool);
             device.destroy();
         }
@@ -29,6 +33,11 @@ namespace jgw
             instance.destroy();
             instance = nullptr;
         }
+
+        graphicsCommandBuffers.clear();
+        fences.clear();
+        imageAvailableSemaphores.clear();
+        renderFinishedSemaphores.clear();
     }
 
     bool VulkanContext::Initialize(
@@ -140,14 +149,28 @@ namespace jgw
             vk::CommandBufferAllocateInfo commandBufferAI{
                 .commandPool = graphicsCommandPool,
                 .level = vk::CommandBufferLevel::ePrimary,
-                .commandBufferCount = 1
+                .commandBufferCount = frameInFlight
             };
 
-            graphicsCommandBuffer = device.allocateCommandBuffers(commandBufferAI)[0];
+            graphicsCommandBuffers = device.allocateCommandBuffers(commandBufferAI);
 
             // Create swapchain
             swapchainPtr = std::make_unique<VulkanSwapchain>(physicalDevice, device, surface);
             swapchainPtr->Create(handle);
+
+            // Create synchronization objects
+            for (uint32_t i = 0; i < frameInFlight; ++i)
+            {
+                vk::FenceCreateInfo fenceCI{
+                    .flags = vk::FenceCreateFlagBits::eSignaled // Start with signaled state
+                };
+                fences.push_back(device.createFence(fenceCI));
+
+                vk::SemaphoreCreateInfo semaphoreCI{};
+                imageAvailableSemaphores.push_back(device.createSemaphore(semaphoreCI));
+                renderFinishedSemaphores.push_back(device.createSemaphore(semaphoreCI));
+            }
+
         }
         catch (const vk::SystemError& err)
         {

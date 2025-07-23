@@ -19,6 +19,8 @@ namespace jgw
 
     protected:
         virtual bool Initialize();
+        virtual void Update() {}
+        virtual void Render() {}
         virtual void OnKey(int key, int scancode, int action, int mods) {}
 
         virtual std::vector<const char*> GetInstanceLayers() const;

@@ -68,6 +68,6 @@ namespace jgw
 
     std::vector<const char*> BaseApp::GetDeviceExtensions() const
     {
-        return { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+        return { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME };
     }
 }

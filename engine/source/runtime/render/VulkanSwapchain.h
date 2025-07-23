@@ -38,5 +38,7 @@ namespace jgw
         vk::SurfaceFormatKHR surfaceFormat;
         vk::SurfaceCapabilitiesKHR surfaceCaps{};
         vk::SwapchainKHR swapchain{};
+
+        uint32_t imageIndex{ 0 };
     };
 }

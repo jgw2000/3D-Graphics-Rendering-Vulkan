@@ -41,10 +41,15 @@ namespace jgw
         vk::Device device{};
         vk::Queue graphicsQueue{};
         vk::CommandPool graphicsCommandPool{};
-        vk::CommandBuffer graphicsCommandBuffer{};
+        std::unique_ptr<VulkanSwapchain> swapchainPtr;
+
+        std::vector<vk::CommandBuffer> graphicsCommandBuffers;
+        std::vector<vk::Fence> fences;
+        std::vector<vk::Semaphore> imageAvailableSemaphores;
+        std::vector<vk::Semaphore> renderFinishedSemaphores;
 
         uint32_t graphicsFamilyIndex = 0;
-
-        std::unique_ptr<VulkanSwapchain> swapchainPtr;
+        uint32_t frameInFlight = 3;
+        uint32_t currentFrame = 0;
     };
 }
