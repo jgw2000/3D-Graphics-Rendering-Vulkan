@@ -15,15 +15,16 @@ namespace jgw
 
     VulkanContext::~VulkanContext()
     {
-        swapchainPtr->Destroy();
-
         if (device)
         {
+            device.waitIdle();
+            swapchainPtr->Destroy();
+
             for (auto& fence : fences) device.destroy(fence);
             for (auto& semaphore : imageAvailableSemaphores) device.destroy(semaphore);
             for (auto& semaphore : renderFinishedSemaphores) device.destroy(semaphore);
 
-            device.destroyCommandPool(graphicsCommandPool);
+            device.destroyCommandPool(commandPool);
             device.destroy();
         }
 
@@ -34,7 +35,7 @@ namespace jgw
             instance = nullptr;
         }
 
-        graphicsCommandBuffers.clear();
+        commandBuffers.clear();
         fences.clear();
         imageAvailableSemaphores.clear();
         renderFinishedSemaphores.clear();
@@ -122,7 +123,12 @@ namespace jgw
             };
             queueCreateInfos.push_back(deviceQueueCI);
 
+            vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeature{
+                .dynamicRendering = vk::True
+            };
+
             vk::DeviceCreateInfo deviceCI{
+                .pNext = &dynamicRenderingFeature,
                 .queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size()),
                 .pQueueCreateInfos = queueCreateInfos.data(),
                 .enabledLayerCount = static_cast<uint32_t>(requestInstanceLayers.size()),
@@ -144,15 +150,15 @@ namespace jgw
                 .queueFamilyIndex = graphicsFamilyIndex
             };
 
-            graphicsCommandPool = device.createCommandPool(commandPoolCI);
+            commandPool = device.createCommandPool(commandPoolCI);
 
             vk::CommandBufferAllocateInfo commandBufferAI{
-                .commandPool = graphicsCommandPool,
+                .commandPool = commandPool,
                 .level = vk::CommandBufferLevel::ePrimary,
                 .commandBufferCount = frameInFlight
             };
 
-            graphicsCommandBuffers = device.allocateCommandBuffers(commandBufferAI);
+            commandBuffers = device.allocateCommandBuffers(commandBufferAI);
 
             // Create swapchain
             swapchainPtr = std::make_unique<VulkanSwapchain>(physicalDevice, device, surface);
@@ -176,10 +182,79 @@ namespace jgw
         {
             spdlog::error("vk::SystemError: {}", err.what());
             return false;
-        }
-        
+        }   
 
+        windowHandle = handle;
         return true;
+    }
+
+    void VulkanContext::BeginRender()
+    {
+        // Wait for the current frame to finish
+        device.waitForFences(fences[currentFrame], vk::True, UINT64_MAX);
+        device.resetFences(fences[currentFrame]);
+
+        // Acquire the next image from the swapchain
+        auto result = swapchainPtr->AcquireImage(imageAvailableSemaphores[currentFrame]);
+        if (result == vk::Result::eErrorOutOfDateKHR)
+        {
+            WindowResize();
+            return;
+        }
+        else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
+        {
+            throw std::runtime_error("Failed to acquire swapchain image");
+        }
+
+        // Begin command buffer recording
+        vk::CommandBufferBeginInfo beginInfo{
+            .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit
+        };
+        commandBuffers[currentFrame].begin(beginInfo);
+    }
+
+    void VulkanContext::EndRender()
+    {
+        // End command buffer recording
+        commandBuffers[currentFrame].end();
+
+        // Submit the command buffer
+        vk::SubmitInfo submitInfo{
+            .waitSemaphoreCount = 1,
+            .pWaitSemaphores = &imageAvailableSemaphores[currentFrame],
+            .pWaitDstStageMask = new vk::PipelineStageFlags[1]{ vk::PipelineStageFlagBits::eColorAttachmentOutput },
+            .commandBufferCount = 1,
+            .pCommandBuffers = &commandBuffers[currentFrame],
+            .signalSemaphoreCount = 1,
+            .pSignalSemaphores = &renderFinishedSemaphores[currentFrame]
+        };
+        graphicsQueue.submit(submitInfo, fences[currentFrame]);
+
+        // Present the swapchain image
+        vk::PresentInfoKHR presentInfo{
+            .waitSemaphoreCount = 1,
+            .pWaitSemaphores = &renderFinishedSemaphores[currentFrame],
+            .swapchainCount = 1,
+            .pSwapchains = swapchainPtr->GetHandle(),
+            .pImageIndices = new uint32_t[1]{ swapchainPtr->GetImageIndex() }
+        };
+        auto result = graphicsQueue.presentKHR(presentInfo);
+        if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+        {
+            WindowResize();
+        }
+        else if (result != vk::Result::eSuccess)
+        {
+            throw std::runtime_error("Failed to present swapchain image");
+        }
+
+        currentFrame = (currentFrame + 1) % frameInFlight;
+    }
+
+    void VulkanContext::WindowResize()
+    {
+        device.waitIdle();
+        swapchainPtr->Create(windowHandle);
     }
 
     bool VulkanContext::CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const

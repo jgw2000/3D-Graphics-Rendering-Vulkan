@@ -22,12 +22,17 @@ namespace jgw
 
     bool VulkanSwapchain::Create(GLFWwindow* handle)
     {
+        vk::SwapchainKHR oldSwapchain = swapchain;
+        surfaceCaps = physicalDevice.getSurfaceCapabilitiesKHR(surface);
+
+        swapchainExtent = GetSurfaceExtent(handle);
+
         vk::SwapchainCreateInfoKHR swapchainCI{
             .surface = surface,
             .minImageCount = ChooseMinImageCount(),
             .imageFormat = surfaceFormat.format,
             .imageColorSpace = surfaceFormat.colorSpace,
-            .imageExtent = GetSurfaceExtent(handle),
+            .imageExtent = swapchainExtent,
             .imageArrayLayers = 1,
             .imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst,
             .imageSharingMode = vk::SharingMode::eExclusive,
@@ -35,11 +40,32 @@ namespace jgw
             .compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque,
             .presentMode = ChoosePresentMode(),
             .clipped = vk::True,
-            .oldSwapchain = swapchain
+            .oldSwapchain = oldSwapchain
         };
-
         swapchain = device.createSwapchainKHR(swapchainCI);
+
+        if (oldSwapchain != nullptr)
+        {
+            for (auto& imageView : swapchainImageViews)
+                device.destroyImageView(imageView);
+            device.destroySwapchainKHR(oldSwapchain);
+            swapchainImageViews.clear();
+        }
+
         swapchainImages = device.getSwapchainImagesKHR(swapchain);
+
+        for (auto& image : swapchainImages)
+        {
+            vk::ImageViewCreateInfo imageViewCI{
+                .image = image,
+                .viewType = vk::ImageViewType::e2D,
+                .format = surfaceFormat.format,
+                .components = { .r = vk::ComponentSwizzle::eIdentity, .g = vk::ComponentSwizzle::eIdentity, .b = vk::ComponentSwizzle::eIdentity, .a = vk::ComponentSwizzle::eIdentity },
+                .subresourceRange = { .aspectMask = vk::ImageAspectFlagBits::eColor, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1 }
+            };
+
+            swapchainImageViews.push_back(device.createImageView(imageViewCI));
+        }
         return true;
     }
 
@@ -47,10 +73,19 @@ namespace jgw
     {
         if (device && swapchain)
         {
+            for (auto& imageView : swapchainImageViews)
+                device.destroyImageView(imageView);
+
             device.destroySwapchainKHR(swapchain);
             swapchain = nullptr;
             swapchainImages.clear();
+            swapchainImageViews.clear();
         }
+    }
+
+    vk::Result VulkanSwapchain::AcquireImage(vk::Semaphore imageAvailableSemaphore)
+    {
+        return device.acquireNextImageKHR(swapchain, UINT64_MAX, imageAvailableSemaphore, nullptr, &imageIndex);
     }
 
     uint32_t VulkanSwapchain::ChooseMinImageCount() const

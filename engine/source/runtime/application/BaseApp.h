@@ -20,12 +20,24 @@ namespace jgw
     protected:
         virtual bool Initialize();
         virtual void Update() {}
-        virtual void Render() {}
+        virtual void Render(vk::CommandBuffer commandBuffer);
         virtual void OnKey(int key, int scancode, int action, int mods) {}
+        virtual void OnResize(int width, int height);
 
         virtual std::vector<const char*> GetInstanceLayers() const;
         virtual std::vector<const char*> GetInstanceExtensions() const;
         virtual std::vector<const char*> GetDeviceExtensions() const;
+
+        void TransitionImageLayout(
+            vk::CommandBuffer       commandBuffer,
+            vk::Image               image,
+            vk::ImageLayout         oldLayout,
+            vk::ImageLayout         newLayout,
+            vk::AccessFlags         srcAccessMask,
+            vk::AccessFlags         dstAccessMask,
+            vk::PipelineStageFlags  srcStage,
+            vk::PipelineStageFlags  dstStage
+        );
 
     private:
         std::unique_ptr<Window> windowPtr;

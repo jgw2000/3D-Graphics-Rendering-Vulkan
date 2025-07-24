@@ -24,8 +24,15 @@ namespace jgw
             const std::vector<const char*>& requestInstanceLayers,
             const std::vector<const char*>& requestInstanceExtensions,
             const std::vector<const char*>& requestDeviceExtensions,
-            uint32_t apiVersion = VK_API_VERSION_1_3
+            uint32_t apiVersion = VK_API_VERSION_1_4
         );
+
+        void BeginRender();
+        void EndRender();
+        void WindowResize();
+
+        vk::CommandBuffer GetCommandBuffer() { return commandBuffers[currentFrame]; }
+        VulkanSwapchain* GetSwapchain() { return swapchainPtr.get(); }
 
     private:
         bool CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const;
@@ -40,14 +47,15 @@ namespace jgw
         vk::PhysicalDevice physicalDevice{};
         vk::Device device{};
         vk::Queue graphicsQueue{};
-        vk::CommandPool graphicsCommandPool{};
+        vk::CommandPool commandPool{};
         std::unique_ptr<VulkanSwapchain> swapchainPtr;
 
-        std::vector<vk::CommandBuffer> graphicsCommandBuffers;
+        std::vector<vk::CommandBuffer> commandBuffers;
         std::vector<vk::Fence> fences;
         std::vector<vk::Semaphore> imageAvailableSemaphores;
         std::vector<vk::Semaphore> renderFinishedSemaphores;
 
+        GLFWwindow* windowHandle;
         uint32_t graphicsFamilyIndex = 0;
         uint32_t frameInFlight = 3;
         uint32_t currentFrame = 0;

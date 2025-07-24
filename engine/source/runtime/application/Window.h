@@ -36,8 +36,6 @@ namespace jgw
         ~Window();
 
         GLFWwindow* GetHandle() const { return handle; }
-        uint32_t Width() const { return windowConfig.width; }
-        uint32_t Height() const { return windowConfig.height; }
 
         bool Initialize();
         void Destroy();
