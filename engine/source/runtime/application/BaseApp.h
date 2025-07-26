@@ -43,5 +43,10 @@ namespace jgw
 
         std::unique_ptr<Window> windowPtr;
         std::unique_ptr<VulkanContext> contextPtr;
+
+    private:
+        void SetCallback(GLFWwindow* handle);
+
+        int iconified = 0;
     };
 }

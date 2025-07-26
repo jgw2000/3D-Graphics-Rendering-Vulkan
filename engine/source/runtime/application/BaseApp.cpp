@@ -23,7 +23,7 @@ namespace jgw
 
             Update();
             
-            if (contextPtr->BeginRender())
+            if (!iconified && contextPtr->BeginRender())
             {
                 Render(contextPtr->GetCommandBuffer());
                 contextPtr->EndRender();
@@ -37,18 +37,7 @@ namespace jgw
             return false;
 
         GLFWwindow* handle = windowPtr->GetHandle();
-        glfwSetWindowUserPointer(handle, this);
-        glfwSetKeyCallback(handle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-            BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
-            if (app) app->OnKey(key, scancode, action, mods);
-
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-                glfwSetWindowShouldClose(window, GLFW_TRUE);
-            });
-        glfwSetWindowSizeCallback(handle, [](GLFWwindow* window, int width, int height) {
-            BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
-            if (app) app->OnResize(width, height);
-            });
+        SetCallback(handle);
 
         auto instanceLayers = GetInstanceLayers();
         auto instanceExtensions = GetInstanceExtensions();
@@ -118,5 +107,31 @@ namespace jgw
         };
 
         commandBuffer.pipelineBarrier(srcStage, dstStage, {}, {}, {}, imageMemoryBarrier);
+    }
+
+    void BaseApp::SetCallback(GLFWwindow* handle)
+    {
+        glfwSetWindowUserPointer(handle, this);
+
+        glfwSetKeyCallback(handle, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+            BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
+            if (app) app->OnKey(key, scancode, action, mods);
+
+            if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+                glfwSetWindowShouldClose(window, GLFW_TRUE);
+        });
+
+        glfwSetWindowSizeCallback(handle, [](GLFWwindow* window, int width, int height) {
+            if (width <= 0 || height <= 0)
+                return;
+
+            BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
+            if (app) app->OnResize(width, height);
+        });
+
+        glfwSetWindowIconifyCallback(handle, [](GLFWwindow* window, int iconified) {
+            BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
+            app->iconified = iconified;
+        });
     }
 }
