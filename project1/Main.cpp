@@ -3,7 +3,7 @@
 int main()
 {
     jgw::WindowConfig config;
-    config.title = "Vulkan";
+    config.title = "Vulkan Project 1 - Triangle";
 
     jgw::TriangleApp app(config);
     app.Start();
