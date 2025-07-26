@@ -1,5 +1,3 @@
-#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
-
 #include "VulkanSwapchain.h"
 
 namespace jgw

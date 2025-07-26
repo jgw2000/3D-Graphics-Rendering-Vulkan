@@ -1,5 +1,3 @@
-#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
-
 #include "VulkanContext.h"
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
@@ -18,11 +16,14 @@ namespace jgw
         if (device)
         {
             device.waitIdle();
-            swapchainPtr->Destroy();
 
             for (auto& fence : fences) device.destroy(fence);
             for (auto& semaphore : imageAvailableSemaphores) device.destroy(semaphore);
             for (auto& semaphore : renderFinishedSemaphores) device.destroy(semaphore);
+            for (auto& layout : pipelineLayouts) device.destroyPipelineLayout(layout);
+            for (auto& pipeline : pipelines) device.destroyPipeline(pipeline);
+
+            swapchainPtr->Destroy();
 
             device.destroyCommandPool(commandPool);
             device.destroy();
@@ -188,22 +189,35 @@ namespace jgw
         return true;
     }
 
-    void VulkanContext::BeginRender()
+    bool VulkanContext::BeginRender()
     {
+        auto extent = swapchainPtr->GetExtent();
+        if (extent.width <= 0 || extent.height <= 0)
+        {
+            return false;
+        }
+
         // Wait for the current frame to finish
-        device.waitForFences(fences[currentFrame], vk::True, UINT64_MAX);
+        auto result = device.waitForFences(fences[currentFrame], vk::True, UINT64_MAX);
+        if (result != vk::Result::eSuccess)
+        {
+            spdlog::warn("Failed to wait for fence: {}", vk::to_string(result));
+            return false;
+        }
+
         device.resetFences(fences[currentFrame]);
 
         // Acquire the next image from the swapchain
-        auto result = swapchainPtr->AcquireImage(imageAvailableSemaphores[currentFrame]);
+        result = swapchainPtr->AcquireImage(imageAvailableSemaphores[currentFrame]);
         if (result == vk::Result::eErrorOutOfDateKHR)
         {
             WindowResize();
-            return;
+            return false;
         }
         else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
         {
-            throw std::runtime_error("Failed to acquire swapchain image");
+            spdlog::error("Failed to acquire swapchain image: {}", vk::to_string(result));
+            return false;
         }
 
         // Begin command buffer recording
@@ -211,6 +225,8 @@ namespace jgw
             .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit
         };
         commandBuffers[currentFrame].begin(beginInfo);
+
+        return true;
     }
 
     void VulkanContext::EndRender()
@@ -245,7 +261,7 @@ namespace jgw
         }
         else if (result != vk::Result::eSuccess)
         {
-            throw std::runtime_error("Failed to present swapchain image");
+            spdlog::error("Failed to present swapchain image: {}", vk::to_string(result));
         }
 
         currentFrame = (currentFrame + 1) % frameInFlight;
@@ -255,6 +271,57 @@ namespace jgw
     {
         device.waitIdle();
         swapchainPtr->Create(windowHandle);
+    }
+
+    vk::Pipeline VulkanContext::CreateGraphicsPipeline(IPipelineBuilder& pd)
+    {
+        auto shaderStages = pd.BuildShaderStages(device);
+        auto vertexInputState = pd.BuildVertexInputState();
+        auto inputAssemblyState = pd.BuildInputAssemblyState();
+        auto viewportState = pd.BuildViewportState();
+        auto rasterizationState = pd.BuildRasterizationState();
+        auto multisampleState = pd.BuildMultisampleState();
+        auto depthStencilState = pd.BuildDepthStencilState();
+        auto colorBlendState = pd.BuildColorBlendState();
+        auto dynamicState = pd.BuildDynamicState();
+        auto pipelineLayout = pd.BuildLayout(device);
+        pipelineLayouts.push_back(pipelineLayout);
+
+        vk::PipelineRenderingCreateInfo renderingCI{
+            .colorAttachmentCount = 1,
+            .pColorAttachmentFormats = new vk::Format[1]{ swapchainPtr->GetFormat() },
+        };
+
+        vk::GraphicsPipelineCreateInfo pipelineCI{
+            .pNext = &renderingCI,
+            .stageCount = static_cast<uint32_t>(shaderStages.size()),
+            .pStages = shaderStages.data(),
+            .pVertexInputState = &vertexInputState,
+            .pInputAssemblyState = &inputAssemblyState,
+            .pViewportState = &viewportState,
+            .pRasterizationState = &rasterizationState,
+            .pMultisampleState = &multisampleState,
+            .pDepthStencilState = &depthStencilState,
+            .pColorBlendState = &colorBlendState,
+            .pDynamicState = &dynamicState,
+            .layout = pipelineLayout,
+        };
+
+        auto ret = device.createGraphicsPipeline(nullptr, pipelineCI);
+
+        for (auto& shaderStage : shaderStages)
+        {
+            device.destroyShaderModule(shaderStage.module);
+        }
+
+        if (ret.result != vk::Result::eSuccess)
+        {
+            spdlog::error("Failed to create graphics pipeline: {}", vk::to_string(ret.result));
+            return nullptr;
+        }
+
+        pipelines.push_back(ret.value);
+        return ret.value;
     }
 
     bool VulkanContext::CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const

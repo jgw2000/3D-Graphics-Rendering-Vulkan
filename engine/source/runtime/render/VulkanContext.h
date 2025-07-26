@@ -1,8 +1,11 @@
 #pragma once
 
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+
 #include "Macro.h"
 #include "Window.h"
 #include "VulkanSwapchain.h"
+#include "IPipelineBuilder.h"
 
 #define VULKAN_HPP_NO_CONSTRUCTORS
 #include <vulkan/vulkan.hpp>
@@ -27,12 +30,14 @@ namespace jgw
             uint32_t apiVersion = VK_API_VERSION_1_4
         );
 
-        void BeginRender();
+        bool BeginRender();
         void EndRender();
         void WindowResize();
 
         vk::CommandBuffer GetCommandBuffer() { return commandBuffers[currentFrame]; }
         VulkanSwapchain* GetSwapchain() { return swapchainPtr.get(); }
+
+        vk::Pipeline CreateGraphicsPipeline(IPipelineBuilder& pd);
 
     private:
         bool CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const;
@@ -54,8 +59,10 @@ namespace jgw
         std::vector<vk::Fence> fences;
         std::vector<vk::Semaphore> imageAvailableSemaphores;
         std::vector<vk::Semaphore> renderFinishedSemaphores;
+        std::vector<vk::Pipeline> pipelines;
+        std::vector<vk::PipelineLayout> pipelineLayouts;
 
-        GLFWwindow* windowHandle;
+        GLFWwindow* windowHandle = nullptr;
         uint32_t graphicsFamilyIndex = 0;
         uint32_t frameInFlight = 3;
         uint32_t currentFrame = 0;

@@ -1,11 +1,11 @@
-#include "BaseApp.h"
+#include "TriangleApp.h"
 
 int main()
 {
     jgw::WindowConfig config;
     config.title = "Vulkan";
 
-    jgw::BaseApp app(config);
+    jgw::TriangleApp app(config);
     app.Start();
 
     return 0;

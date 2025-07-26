@@ -1,6 +1,5 @@
-#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
-
 #include "BaseApp.h"
+#include "IPipelineBuilder.h"
 
 #include <array>
 
@@ -24,9 +23,11 @@ namespace jgw
 
             Update();
             
-            contextPtr->BeginRender();
-            Render(contextPtr->GetCommandBuffer());
-            contextPtr->EndRender();
+            if (contextPtr->BeginRender())
+            {
+                Render(contextPtr->GetCommandBuffer());
+                contextPtr->EndRender();
+            }
         }
     }
 
@@ -57,53 +58,6 @@ namespace jgw
             return false;
 
         return true;
-    }
-
-    void BaseApp::Render(vk::CommandBuffer commandBuffer)
-    {
-        TransitionImageLayout(
-            commandBuffer,
-            contextPtr->GetSwapchain()->GetImage(),
-            vk::ImageLayout::eUndefined,
-            vk::ImageLayout::eColorAttachmentOptimal,
-            {},
-            vk::AccessFlagBits::eColorAttachmentWrite,
-            vk::PipelineStageFlagBits::eTopOfPipe,
-            vk::PipelineStageFlagBits::eColorAttachmentOutput
-        );
-
-        vk::ClearValue clear_value{
-            .color = std::array<float, 4>({0.0f, 0.0f, 0.0f, 1.0f})
-        };
-
-        vk::RenderingAttachmentInfo colorAttachment{
-            .imageView = contextPtr->GetSwapchain()->GetImageView(),
-            .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
-            .loadOp = vk::AttachmentLoadOp::eClear,
-            .storeOp = vk::AttachmentStoreOp::eStore,
-            .clearValue = clear_value
-        };
-
-        vk::RenderingInfo renderInfo{
-            .renderArea = { .offset = {0, 0}, .extent = contextPtr->GetSwapchain()->GetExtent() },
-            .layerCount = 1,
-            .colorAttachmentCount = 1,
-            .pColorAttachments = &colorAttachment
-        };
-
-        commandBuffer.beginRendering(renderInfo);
-        commandBuffer.endRendering();
-
-        TransitionImageLayout(
-            commandBuffer,
-            contextPtr->GetSwapchain()->GetImage(),
-            vk::ImageLayout::eColorAttachmentOptimal,
-            vk::ImageLayout::ePresentSrcKHR,
-            vk::AccessFlagBits::eColorAttachmentWrite,
-            {},
-            vk::PipelineStageFlagBits::eColorAttachmentOutput,
-            vk::PipelineStageFlagBits::eBottomOfPipe
-        );
     }
 
     void BaseApp::OnResize(int width, int height)

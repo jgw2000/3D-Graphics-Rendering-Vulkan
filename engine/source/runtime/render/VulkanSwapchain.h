@@ -1,5 +1,7 @@
 #pragma once
 
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+
 #include "Macro.h"
 #include "Window.h"
 
@@ -26,7 +28,9 @@ namespace jgw
         vk::Image GetImage() { return swapchainImages[imageIndex]; }
         vk::ImageView GetImageView() { return swapchainImageViews[imageIndex]; }
         vk::Extent2D GetExtent() { return swapchainExtent; }
+        vk::Format GetFormat() const { return surfaceFormat.format; }
         uint32_t GetImageIndex() const { return imageIndex; }
+
 
     private:
         uint32_t ChooseMinImageCount() const;

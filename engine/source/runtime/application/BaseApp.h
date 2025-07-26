@@ -1,5 +1,7 @@
 #pragma once
 
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+
 #include "Macro.h"
 #include "Window.h"
 #include "VulkanContext.h"
@@ -20,7 +22,7 @@ namespace jgw
     protected:
         virtual bool Initialize();
         virtual void Update() {}
-        virtual void Render(vk::CommandBuffer commandBuffer);
+        virtual void Render(vk::CommandBuffer commandBuffer) {}
         virtual void OnKey(int key, int scancode, int action, int mods) {}
         virtual void OnResize(int width, int height);
 
@@ -39,7 +41,6 @@ namespace jgw
             vk::PipelineStageFlags  dstStage
         );
 
-    private:
         std::unique_ptr<Window> windowPtr;
         std::unique_ptr<VulkanContext> contextPtr;
     };
