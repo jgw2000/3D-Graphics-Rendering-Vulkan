@@ -3,13 +3,14 @@ find_package(spdlog REQUIRED)
 find_package(assimp REQUIRED)
 
 file(GLOB_RECURSE SRC_FILES source/*.c??)
-file(GLOB_RECURSE HEADER_FILES source/*.h)
+file(GLOB_RECURSE HEADER_FILES source/*.h source/*.hpp)
 
 add_library(Engine ${SRC_FILES} ${HEADER_FILES})
 
 target_include_directories(Engine PUBLIC
     source/runtime/application
     source/runtime/render
+    source/runtime/render/vma
     source/runtime/foundation
 )
 

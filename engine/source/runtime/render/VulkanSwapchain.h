@@ -1,12 +1,9 @@
 #pragma once
 
-#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
-
 #include "Macro.h"
 #include "Window.h"
 
-#define VULKAN_HPP_NO_CONSTRUCTORS
-#include <vulkan/vulkan.hpp>
+#include <VmaUsage.h>
 #include <vector>
 
 namespace jgw
