@@ -2,7 +2,6 @@
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
-#define FMT_UNICODE 0
 #include <spdlog/spdlog.h>
 
 namespace jgw

@@ -2,7 +2,6 @@
 
 #include "IPipelineBuilder.h"
 
-#define FMT_UNICODE 0
 #include <spdlog/spdlog.h>
 #include <fstream>
 

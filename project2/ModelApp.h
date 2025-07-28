@@ -2,6 +2,13 @@
 
 #include "BaseApp.h"
 
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
+
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+#include <assimp/cimport.h>
+
 namespace jgw
 {
     class ModelApp : public BaseApp
@@ -14,5 +21,9 @@ namespace jgw
     protected:
         virtual bool Initialize() override;
         virtual void Render(vk::CommandBuffer commandBuffer) override;
+
+    private:
+        bool LoadModel();
+        bool CreatePipeline();
     };
 }
