@@ -4,10 +4,10 @@
 * Windows
 * Visual Studio 2022
 * Vulkan SDK 1.4.313
-* C++ 20
-* Python 3.6+
 * cmake 3.31
 * conan 2
+* C++ 20
+* Python 3.6+
 
 ## 第三方库
 * glfw 3.4
