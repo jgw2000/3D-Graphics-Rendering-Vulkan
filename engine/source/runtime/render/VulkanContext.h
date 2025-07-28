@@ -59,9 +59,12 @@ namespace jgw
         std::vector<vk::Pipeline> pipelines;
         std::vector<vk::PipelineLayout> pipelineLayouts;
 
+        vma::Allocator vmaAllocator{};
+
         GLFWwindow* windowHandle = nullptr;
         uint32_t graphicsFamilyIndex = 0;
         uint32_t frameInFlight = 3;
         uint32_t currentFrame = 0;
+        uint32_t apiVersion = VK_API_VERSION_1_4;
     };
 }

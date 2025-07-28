@@ -49,6 +49,8 @@ namespace jgw
         uint32_t apiVersion
     )
     {
+        this->apiVersion = apiVersion;
+
         try
         {
             // Create vulkan instance
@@ -177,6 +179,17 @@ namespace jgw
                 renderFinishedSemaphores.push_back(device.createSemaphore(semaphoreCI));
             }
 
+            // Initialize VMA
+            vma::VulkanFunctions vulkanFuncs = vma::functionsFromDispatcher(VULKAN_HPP_DEFAULT_DISPATCHER);
+            vma::AllocatorCreateInfo allocatorCI{
+                .physicalDevice = physicalDevice,
+                .device = device,
+                .pVulkanFunctions = &vulkanFuncs,
+                .instance = instance,
+                .vulkanApiVersion = apiVersion
+            };
+
+            vmaAllocator = vma::createAllocator(allocatorCI);
         }
         catch (const vk::SystemError& err)
         {
