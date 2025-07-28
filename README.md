@@ -5,9 +5,14 @@
 * Visual Studio 2022
 * Vulkan SDK 1.4.313
 * C++ 20
+* Python 3.6+
 * cmake 3.31
+* conan 2
+
+## 第三方库
 * glfw 3.4
 * spdlog 1.15.3
+* assimp 5.4.3
 
 ### Project 1 - Triangle
 ![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/project1/triangle.png)

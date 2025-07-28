@@ -11,3 +11,4 @@ include_directories(${Vulkan_INCLUDE_DIR})
 
 add_subdirectory(engine)
 add_subdirectory(project1)
+add_subdirectory(project2)
