@@ -38,10 +38,10 @@ namespace jgw
     vk::PipelineVertexInputStateCreateInfo IPipelineBuilder::BuildVertexInputState()
     {
         vk::PipelineVertexInputStateCreateInfo vertexInputStateCI{
-            .vertexBindingDescriptionCount = 0,
-            .pVertexBindingDescriptions = nullptr,
-            .vertexAttributeDescriptionCount = 0,
-            .pVertexAttributeDescriptions = nullptr
+            .vertexBindingDescriptionCount = static_cast<uint32_t>(vertexBindingDescriptions.size()),
+            .pVertexBindingDescriptions = vertexBindingDescriptions.data(),
+            .vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributeDescriptions.size()),
+            .pVertexAttributeDescriptions = vertexAttributeDescriptions.data()
         };
 
         return vertexInputStateCI;

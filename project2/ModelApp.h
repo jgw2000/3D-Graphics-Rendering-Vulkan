@@ -21,9 +21,18 @@ namespace jgw
     protected:
         virtual bool Initialize() override;
         virtual void Render(vk::CommandBuffer commandBuffer) override;
+        virtual void Cleanup() override;
 
     private:
         bool LoadModel();
         bool CreatePipeline();
+
+        std::vector<glm::vec3> positions;
+        std::vector<uint32_t> indices;
+
+        std::unique_ptr<VulkanBuffer> vertexBuffer;
+        std::unique_ptr<VulkanBuffer> indexBuffer;
+
+        vk::Pipeline pipeline{};
     };
 }

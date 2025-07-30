@@ -21,6 +21,7 @@ namespace jgw
         virtual bool Initialize();
         virtual void Update() {}
         virtual void Render(vk::CommandBuffer commandBuffer) {}
+        virtual void Cleanup();
         virtual void OnKey(int key, int scancode, int action, int mods) {}
         virtual void OnResize(int width, int height);
 

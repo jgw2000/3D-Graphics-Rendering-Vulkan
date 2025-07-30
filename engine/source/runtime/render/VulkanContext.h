@@ -3,6 +3,7 @@
 #include "Macro.h"
 #include "Window.h"
 #include "VulkanSwapchain.h"
+#include "VulkanBuffer.h"
 #include "IPipelineBuilder.h"
 
 #include <VmaUsage.h>
@@ -30,11 +31,22 @@ namespace jgw
         bool BeginRender();
         void EndRender();
         void WindowResize();
+        void WaitDeviceIdle();
+        void WaitQueueIdle();
 
         vk::CommandBuffer GetCommandBuffer() { return commandBuffers[currentFrame]; }
         VulkanSwapchain* GetSwapchain() { return swapchainPtr.get(); }
 
         vk::Pipeline CreateGraphicsPipeline(IPipelineBuilder& pd);
+
+        std::unique_ptr<VulkanBuffer> CreateBuffer(
+            vk::DeviceSize size,
+            vk::BufferUsageFlags bufferUsage,
+            vma::AllocationCreateFlags flags = {},
+            vma::MemoryUsage memoryUsage = vma::MemoryUsage::eAuto
+        );
+
+        void UploadBuffer(const void* data, VulkanBuffer* srcBuffer, VulkanBuffer* dstBuffer);
 
     private:
         bool CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const;
@@ -59,6 +71,7 @@ namespace jgw
         std::vector<vk::Pipeline> pipelines;
         std::vector<vk::PipelineLayout> pipelineLayouts;
 
+        vma::VulkanFunctions vulkanFuncs{};
         vma::Allocator vmaAllocator{};
 
         GLFWwindow* windowHandle = nullptr;

@@ -29,6 +29,9 @@ namespace jgw
                 contextPtr->EndRender();
             }
         }
+
+        contextPtr->WaitDeviceIdle();
+        Cleanup();
     }
 
     bool BaseApp::Initialize()
@@ -47,6 +50,12 @@ namespace jgw
             return false;
 
         return true;
+    }
+
+    void BaseApp::Cleanup()
+    {
+        contextPtr.reset();
+        windowPtr.reset();
     }
 
     void BaseApp::OnResize(int width, int height)

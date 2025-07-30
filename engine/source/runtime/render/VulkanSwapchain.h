@@ -36,9 +36,9 @@ namespace jgw
         vk::PresentModeKHR ChoosePresentMode() const;
 
     private:
-        vk::PhysicalDevice& physicalDevice;
-        vk::Device& device;
-        vk::SurfaceKHR& surface;
+        vk::PhysicalDevice physicalDevice;
+        vk::Device device;
+        vk::SurfaceKHR surface;
 
         std::vector<vk::SurfaceFormatKHR> surfaceFormats;
         std::vector<vk::PresentModeKHR> surfacePresentModes;

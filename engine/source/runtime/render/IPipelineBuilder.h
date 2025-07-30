@@ -31,6 +31,15 @@ namespace jgw
         void SetVertexShaderFile(std::string filename);
         void SetFragmentShaderFile(std::string filename);
 
+        void SetVertexBindingDescriptions(std::vector<vk::VertexInputBindingDescription>& bindingDescriptions)
+        {
+            vertexBindingDescriptions = bindingDescriptions;
+        }
+        void SetVertexAttributeDescriptions(std::vector<vk::VertexInputAttributeDescription>& attributeDescriptions)
+        {
+            vertexAttributeDescriptions = attributeDescriptions;
+        }
+
     protected:
         bool hasVertexShader = true;
         bool hasFragmentShader = true;
@@ -41,6 +50,8 @@ namespace jgw
     private:
         vk::ShaderModule LoadShader(const char* filename, const vk::Device& device);
 
+        std::vector<vk::VertexInputBindingDescription> vertexBindingDescriptions;
+        std::vector<vk::VertexInputAttributeDescription> vertexAttributeDescriptions;
         std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachmentStates;
         std::vector<vk::DynamicState> dynamicStates;
     };

@@ -12,10 +12,10 @@ namespace jgw
 
     VulkanContext::~VulkanContext()
     {
+        vmaAllocator.destroy();
+
         if (device)
         {
-            device.waitIdle();
-
             for (auto& fence : fences) device.destroy(fence);
             for (auto& semaphore : imageAvailableSemaphores) device.destroy(semaphore);
             for (auto& semaphore : renderFinishedSemaphores) device.destroy(semaphore);
@@ -180,7 +180,7 @@ namespace jgw
             }
 
             // Initialize VMA
-            vma::VulkanFunctions vulkanFuncs = vma::functionsFromDispatcher(VULKAN_HPP_DEFAULT_DISPATCHER);
+            vulkanFuncs = vma::functionsFromDispatcher(VULKAN_HPP_DEFAULT_DISPATCHER);
             vma::AllocatorCreateInfo allocatorCI{
                 .physicalDevice = physicalDevice,
                 .device = device,
@@ -285,6 +285,18 @@ namespace jgw
         swapchainPtr->Create(windowHandle);
     }
 
+    void VulkanContext::WaitDeviceIdle()
+    {
+        if (device)
+            device.waitIdle();
+    }
+
+    void VulkanContext::WaitQueueIdle()
+    {
+        if (graphicsQueue)
+            graphicsQueue.waitIdle();
+    }
+
     vk::Pipeline VulkanContext::CreateGraphicsPipeline(IPipelineBuilder& pd)
     {
         auto shaderStages = pd.BuildShaderStages(device);
@@ -334,6 +346,44 @@ namespace jgw
 
         pipelines.push_back(ret.value);
         return ret.value;
+    }
+
+    std::unique_ptr<VulkanBuffer> VulkanContext::CreateBuffer(
+        vk::DeviceSize size,
+        vk::BufferUsageFlags bufferUsage,
+        vma::AllocationCreateFlags flags,
+        vma::MemoryUsage memoryUsage
+    )
+    {
+        return std::make_unique<VulkanBuffer>(size, bufferUsage, vmaAllocator, flags, memoryUsage);
+    }
+
+    void VulkanContext::UploadBuffer(const void* data, VulkanBuffer* srcBuffer, VulkanBuffer* dstBuffer)
+    {
+        memcpy(srcBuffer->mappedMemory, data, srcBuffer->size);
+
+        auto commandBuffer = GetCommandBuffer();
+
+        vk::CommandBufferBeginInfo beginInfo{
+            .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit
+        };
+        commandBuffer.begin(beginInfo);
+
+        vk::BufferCopy copyRegion{
+            .srcOffset = 0,
+            .dstOffset = 0,
+            .size = srcBuffer->size
+        };
+        commandBuffer.copyBuffer(srcBuffer->buffer, dstBuffer->buffer, copyRegion);
+
+        commandBuffer.end();
+
+        // Submit
+        vk::SubmitInfo submitInfo{
+            .commandBufferCount = 1,
+            .pCommandBuffers = &commandBuffer,
+        };
+        graphicsQueue.submit(submitInfo, nullptr);
     }
 
     bool VulkanContext::CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const
