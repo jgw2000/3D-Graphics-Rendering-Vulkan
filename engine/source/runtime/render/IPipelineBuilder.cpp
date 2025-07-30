@@ -151,11 +151,12 @@ namespace jgw
     vk::PipelineLayout IPipelineBuilder::BuildLayout(const vk::Device& device)
     {
         vk::PipelineLayoutCreateInfo pipelineLayoutCI{
-            .setLayoutCount = 0, // No descriptor sets
-            .pSetLayouts = nullptr,
-            .pushConstantRangeCount = 0, // No push constants
-            .pPushConstantRanges = nullptr
+            .setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size()),
+            .pSetLayouts = descriptorSetLayouts.data(),
+            .pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size()),
+            .pPushConstantRanges = pushConstantRanges.data()
         };
+
         return device.createPipelineLayout(pipelineLayoutCI);
     }
 

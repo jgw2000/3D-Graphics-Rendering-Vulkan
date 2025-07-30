@@ -64,7 +64,7 @@ namespace jgw
 
         commandBuffer.beginRendering(renderInfo);
 
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Handle());
 
         vk::Buffer vertexBuffers[] = { vertexBuffer->Handle() };
         vk::DeviceSize offsets[] = { 0 };
@@ -88,6 +88,13 @@ namespace jgw
         };
         commandBuffer.setScissor(0, 1, &scissor);
 
+        const float ratio = extent.width / (float)extent.height;
+        const glm::mat4 m = glm::rotate(glm::mat4(1.0), glm::radians(-90.0f), glm::vec3(1, 0, 0));
+        const glm::mat4 v = glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.5f, -1.5f)), (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+        const glm::mat4 p = glm::perspective(45.0f, ratio, 0.1f, 1000.0f);
+        const glm::mat4 mvp = p * v * m;
+
+        commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4), &mvp);
         commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
 
         commandBuffer.endRendering();
@@ -108,13 +115,14 @@ namespace jgw
     {
         vertexBuffer.reset();
         indexBuffer.reset();
+        pipeline.reset();
 
         BaseApp::Cleanup();
     }
 
     bool ModelApp::LoadModel()
     {
-        const aiScene* scene = aiImportFile("rubber_duck/scene.gltf", aiProcess_Triangulate);
+        const aiScene* scene = aiImportFile("rubber_duck/scene.gltf", aiProcess_Triangulate | aiProcess_MakeLeftHanded);
         if (!scene || !scene->HasMeshes())
         {
             spdlog::error(aiGetErrorString());
@@ -149,9 +157,6 @@ namespace jgw
             vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst
         );
 
-        contextPtr->UploadBuffer(positions.data(), stagingVertexBuffer.get(), vertexBuffer.get());
-        contextPtr->WaitQueueIdle();
-
         // Index Buffer
         std::unique_ptr<VulkanBuffer> stagingIndexBuffer = contextPtr->CreateBuffer(
             sizeof(uint32_t) * indices.size(),
@@ -164,8 +169,10 @@ namespace jgw
             vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst
         );
 
+        contextPtr->BeginCommand();
+        contextPtr->UploadBuffer(positions.data(), stagingVertexBuffer.get(), vertexBuffer.get());
         contextPtr->UploadBuffer(indices.data(), stagingIndexBuffer.get(), indexBuffer.get());
-        contextPtr->WaitQueueIdle();
+        contextPtr->EndCommand();
 
         return true;
     }
@@ -180,9 +187,14 @@ namespace jgw
             { .location = 0, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = 0 }
         };
 
+        std::vector<vk::PushConstantRange> pushConstantRanges = {
+            { .stageFlags = vk::ShaderStageFlagBits::eVertex, .offset = 0, .size = sizeof(glm::mat4) }
+        };
+
         IPipelineBuilder pd;
         pd.SetVertexBindingDescriptions(bindingDescriptions);
         pd.SetVertexAttributeDescriptions(attributeDescriptions);
+        pd.SetPushConstantRanges(pushConstantRanges);
         pd.SetVertexShaderFile("shaders/model.vert.spv");
         pd.SetFragmentShaderFile("shaders/model.frag.spv");
 

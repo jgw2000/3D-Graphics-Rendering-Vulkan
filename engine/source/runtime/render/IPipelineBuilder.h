@@ -31,13 +31,21 @@ namespace jgw
         void SetVertexShaderFile(std::string filename);
         void SetFragmentShaderFile(std::string filename);
 
-        void SetVertexBindingDescriptions(std::vector<vk::VertexInputBindingDescription>& bindingDescriptions)
+        void SetVertexBindingDescriptions(std::vector<vk::VertexInputBindingDescription>& descriptions)
         {
-            vertexBindingDescriptions = bindingDescriptions;
+            vertexBindingDescriptions = descriptions;
         }
-        void SetVertexAttributeDescriptions(std::vector<vk::VertexInputAttributeDescription>& attributeDescriptions)
+        void SetVertexAttributeDescriptions(std::vector<vk::VertexInputAttributeDescription>& descriptions)
         {
-            vertexAttributeDescriptions = attributeDescriptions;
+            vertexAttributeDescriptions = descriptions;
+        }
+        void SetDescriptorSetLayouts(std::vector<vk::DescriptorSetLayout>& layouts)
+        {
+            descriptorSetLayouts = layouts;
+        }
+        void SetPushConstantRanges(std::vector<vk::PushConstantRange>& ranges)
+        {
+            pushConstantRanges = ranges;
         }
 
     protected:
@@ -54,5 +62,7 @@ namespace jgw
         std::vector<vk::VertexInputAttributeDescription> vertexAttributeDescriptions;
         std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachmentStates;
         std::vector<vk::DynamicState> dynamicStates;
+        std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;
+        std::vector<vk::PushConstantRange> pushConstantRanges;
     };
 }

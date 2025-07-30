@@ -19,8 +19,6 @@ namespace jgw
             for (auto& fence : fences) device.destroy(fence);
             for (auto& semaphore : imageAvailableSemaphores) device.destroy(semaphore);
             for (auto& semaphore : renderFinishedSemaphores) device.destroy(semaphore);
-            for (auto& layout : pipelineLayouts) device.destroyPipelineLayout(layout);
-            for (auto& pipeline : pipelines) device.destroyPipeline(pipeline);
 
             swapchainPtr->Destroy();
 
@@ -279,6 +277,30 @@ namespace jgw
         currentFrame = (currentFrame + 1) % frameInFlight;
     }
 
+    void VulkanContext::BeginCommand()
+    {
+        auto commandBuffer = GetCommandBuffer();
+
+        vk::CommandBufferBeginInfo beginInfo{
+            .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit
+        };
+        commandBuffer.begin(beginInfo);
+    }
+
+    void VulkanContext::EndCommand()
+    {
+        auto commandBuffer = GetCommandBuffer();
+        commandBuffer.end();
+
+        // Submit
+        vk::SubmitInfo submitInfo{
+            .commandBufferCount = 1,
+            .pCommandBuffers = &commandBuffer,
+        };
+        graphicsQueue.submit(submitInfo, nullptr);
+        graphicsQueue.waitIdle();
+    }
+
     void VulkanContext::WindowResize()
     {
         device.waitIdle();
@@ -297,7 +319,7 @@ namespace jgw
             graphicsQueue.waitIdle();
     }
 
-    vk::Pipeline VulkanContext::CreateGraphicsPipeline(IPipelineBuilder& pd)
+    std::unique_ptr<VulkanPipeline> VulkanContext::CreateGraphicsPipeline(IPipelineBuilder& pd)
     {
         auto shaderStages = pd.BuildShaderStages(device);
         auto vertexInputState = pd.BuildVertexInputState();
@@ -309,7 +331,6 @@ namespace jgw
         auto colorBlendState = pd.BuildColorBlendState();
         auto dynamicState = pd.BuildDynamicState();
         auto pipelineLayout = pd.BuildLayout(device);
-        pipelineLayouts.push_back(pipelineLayout);
 
         vk::PipelineRenderingCreateInfo renderingCI{
             .colorAttachmentCount = 1,
@@ -344,8 +365,7 @@ namespace jgw
             return nullptr;
         }
 
-        pipelines.push_back(ret.value);
-        return ret.value;
+        return std::make_unique<VulkanPipeline>(device, ret.value, pipelineLayout);
     }
 
     std::unique_ptr<VulkanBuffer> VulkanContext::CreateBuffer(
@@ -364,26 +384,12 @@ namespace jgw
 
         auto commandBuffer = GetCommandBuffer();
 
-        vk::CommandBufferBeginInfo beginInfo{
-            .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit
-        };
-        commandBuffer.begin(beginInfo);
-
         vk::BufferCopy copyRegion{
             .srcOffset = 0,
             .dstOffset = 0,
             .size = srcBuffer->size
         };
         commandBuffer.copyBuffer(srcBuffer->buffer, dstBuffer->buffer, copyRegion);
-
-        commandBuffer.end();
-
-        // Submit
-        vk::SubmitInfo submitInfo{
-            .commandBufferCount = 1,
-            .pCommandBuffers = &commandBuffer,
-        };
-        graphicsQueue.submit(submitInfo, nullptr);
     }
 
     bool VulkanContext::CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const

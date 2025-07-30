@@ -1,7 +1,7 @@
 [shader("vertex")]
-float4 vertexMain(float3 position : POSITION0) : SV_Position
+float4 vertexMain(float3 position : POSITION0, uniform float4x4 mvp) : SV_Position
 {
-    return float4(position, 1.0);
+    return mul(mvp, float4(position, 1.0));
 }
 
 [shader("fragment")]

@@ -32,7 +32,6 @@ namespace jgw
 
         std::unique_ptr<VulkanBuffer> vertexBuffer;
         std::unique_ptr<VulkanBuffer> indexBuffer;
-
-        vk::Pipeline pipeline{};
+        std::unique_ptr<VulkanPipeline> pipeline;
     };
 }

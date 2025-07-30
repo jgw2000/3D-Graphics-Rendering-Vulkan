@@ -4,6 +4,7 @@
 #include "Window.h"
 #include "VulkanSwapchain.h"
 #include "VulkanBuffer.h"
+#include "VulkanPipeline.h"
 #include "IPipelineBuilder.h"
 
 #include <VmaUsage.h>
@@ -30,6 +31,9 @@ namespace jgw
 
         bool BeginRender();
         void EndRender();
+        void BeginCommand();
+        void EndCommand();
+
         void WindowResize();
         void WaitDeviceIdle();
         void WaitQueueIdle();
@@ -37,7 +41,7 @@ namespace jgw
         vk::CommandBuffer GetCommandBuffer() { return commandBuffers[currentFrame]; }
         VulkanSwapchain* GetSwapchain() { return swapchainPtr.get(); }
 
-        vk::Pipeline CreateGraphicsPipeline(IPipelineBuilder& pd);
+        std::unique_ptr<VulkanPipeline> CreateGraphicsPipeline(IPipelineBuilder& pd);
 
         std::unique_ptr<VulkanBuffer> CreateBuffer(
             vk::DeviceSize size,
@@ -68,8 +72,6 @@ namespace jgw
         std::vector<vk::Fence> fences;
         std::vector<vk::Semaphore> imageAvailableSemaphores;
         std::vector<vk::Semaphore> renderFinishedSemaphores;
-        std::vector<vk::Pipeline> pipelines;
-        std::vector<vk::PipelineLayout> pipelineLayouts;
 
         vma::VulkanFunctions vulkanFuncs{};
         vma::Allocator vmaAllocator{};

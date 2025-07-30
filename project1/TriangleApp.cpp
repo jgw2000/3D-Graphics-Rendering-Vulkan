@@ -59,7 +59,7 @@ namespace jgw
 
         commandBuffer.beginRendering(renderInfo);
 
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Handle());
 
         auto extent = contextPtr->GetSwapchain()->GetExtent();
         vk::Viewport viewport{
@@ -92,5 +92,12 @@ namespace jgw
             vk::PipelineStageFlagBits::eColorAttachmentOutput,
             vk::PipelineStageFlagBits::eBottomOfPipe
         );
+    }
+
+    void TriangleApp::Cleanup()
+    {
+        pipeline.reset();
+
+        BaseApp::Cleanup();
     }
 }
