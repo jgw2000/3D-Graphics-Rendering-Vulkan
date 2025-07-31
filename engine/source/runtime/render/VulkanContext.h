@@ -54,6 +54,7 @@ namespace jgw
         std::unique_ptr<VulkanTexture> CreateTexture(const TextureDesc& desc, const VmaAllocationDesc& allocDesc = {});
 
         void UploadBuffer(const void* data, VulkanBuffer* srcBuffer, VulkanBuffer* dstBuffer);
+        void UploadTexture(const void* data, VulkanBuffer* srcBuffer, VulkanTexture* dstTexture);
 
     private:
         bool CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const;

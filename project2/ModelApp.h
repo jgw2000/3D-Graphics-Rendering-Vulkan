@@ -34,8 +34,8 @@ namespace jgw
         virtual void OnResize(int width, int height) override;
 
     private:
-        bool CreateDepthBuffer();
         bool LoadModel();
+        bool CreateDepthBuffer();
         bool CreatePipeline();
 
         std::vector<VertexData> vertices;
@@ -45,5 +45,6 @@ namespace jgw
         std::unique_ptr<VulkanBuffer> indexBuffer;
         std::unique_ptr<VulkanPipeline> pipeline;
         std::unique_ptr<VulkanTexture> depthTexture;
+        std::unique_ptr<VulkanTexture> modelTexture;
     };
 }

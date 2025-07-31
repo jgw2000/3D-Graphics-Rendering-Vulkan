@@ -10,6 +10,7 @@ class ExampleRecipe(ConanFile):
         self.requires("glfw/3.4")
         self.requires("spdlog/1.15.3")
         self.requires("assimp/5.4.3")
+        self.requires("stb/cci.20240531", override=True)
 
     def layout(self):
         cmake_layout(self)

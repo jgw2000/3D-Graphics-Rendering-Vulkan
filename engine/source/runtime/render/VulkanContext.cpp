@@ -393,6 +393,15 @@ namespace jgw
         commandBuffer.copyBuffer(srcBuffer->buffer, dstBuffer->buffer, copyRegion);
     }
 
+    void VulkanContext::UploadTexture(const void* data, VulkanBuffer* srcBuffer, VulkanTexture* dstTexture)
+    {
+        memcpy(srcBuffer->mappedMemory, data, srcBuffer->size);
+
+        // TODO
+
+        auto commandBuffer = GetCommandBuffer();
+    }
+
     bool VulkanContext::CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const
     {
         if (requestInstanceLayers.empty())

@@ -1,6 +1,9 @@
 #include "BaseApp.h"
 #include "IPipelineBuilder.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb.h>
+#include <stb_image.h>
 #include <array>
 
 namespace jgw
@@ -116,6 +119,38 @@ namespace jgw
         };
 
         commandBuffer.pipelineBarrier(srcStage, dstStage, {}, {}, {}, imageMemoryBarrier);
+    }
+
+    std::unique_ptr<VulkanTexture> BaseApp::LoadTexture(const char* filename)
+    {
+        int w, h, comp;
+        auto* data = stbi_load("rubber_duck/textures/Duck_baseColor.png", &w, &h, &comp, 4);
+
+        const TextureDesc desc{
+            .usageFlags = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+            .extent = {
+                .width = static_cast<uint32_t>(w),
+                .height = static_cast<uint32_t>(h),
+                .depth = 1
+            }
+        };
+
+        const VmaAllocationDesc allocDesc{
+            .flags = vma::AllocationCreateFlagBits::eDedicatedMemory,
+            .usage = vma::MemoryUsage::eAutoPreferDevice
+        };
+
+        std::unique_ptr<VulkanTexture> texture = contextPtr->CreateTexture(desc, allocDesc);
+        std::unique_ptr<VulkanBuffer> stagingBuffer = contextPtr->CreateBuffer(
+            w * h * 4,
+            vk::BufferUsageFlagBits::eTransferSrc,
+            vma::AllocationCreateFlagBits::eMapped | vma::AllocationCreateFlagBits::eHostAccessSequentialWrite
+        );
+
+        contextPtr->UploadTexture(data, stagingBuffer.get(), texture.get());
+        stbi_image_free(data);
+
+        return texture;
     }
 
     void BaseApp::SetCallback(GLFWwindow* handle)

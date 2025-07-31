@@ -40,6 +40,8 @@ namespace jgw
             vk::PipelineStageFlags  dstStage
         );
 
+        std::unique_ptr<VulkanTexture> LoadTexture(const char* filename);
+
         std::unique_ptr<Window> windowPtr;
         std::unique_ptr<VulkanContext> contextPtr;
 

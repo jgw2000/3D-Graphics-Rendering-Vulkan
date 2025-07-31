@@ -136,6 +136,7 @@ namespace jgw
         indexBuffer.reset();
         pipeline.reset();
         depthTexture.reset();
+        modelTexture.reset();
 
         BaseApp::Cleanup();
     }
@@ -206,8 +207,9 @@ namespace jgw
         contextPtr->BeginCommand();
         contextPtr->UploadBuffer(vertices.data(), stagingVertexBuffer.get(), vertexBuffer.get());
         contextPtr->UploadBuffer(indices.data(), stagingIndexBuffer.get(), indexBuffer.get());
+        modelTexture = LoadTexture("rubber_duck/textures/Duck_baseColor.png");
         contextPtr->EndCommand();
-
+        
         return true;
     }
 
