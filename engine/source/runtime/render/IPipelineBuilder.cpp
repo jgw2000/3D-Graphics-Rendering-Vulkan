@@ -160,6 +160,17 @@ namespace jgw
         return device.createPipelineLayout(pipelineLayoutCI);
     }
 
+    vk::PipelineRenderingCreateInfo IPipelineBuilder::BuildRendering()
+    {
+        vk::PipelineRenderingCreateInfo renderingCI{
+            .colorAttachmentCount = static_cast<uint32_t>(colorFormats.size()),
+            .pColorAttachmentFormats = colorFormats.data(),
+            .depthAttachmentFormat = depthFormat
+        };
+
+        return renderingCI;
+    }
+
     void IPipelineBuilder::SetVertexShaderFile(std::string filename)
     {
         vertexShaderFile = filename;

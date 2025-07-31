@@ -21,6 +21,12 @@ namespace jgw
             return false;
         }
 
+        if (!CreateDepthBuffer())
+        {
+            spdlog::error("Failed to create depth buffer");
+            return false;
+        }
+
         if (!CreatePipeline())
         {
             spdlog::error("Failed to create pipeline");
@@ -43,8 +49,8 @@ namespace jgw
             vk::PipelineStageFlagBits::eColorAttachmentOutput
         );
 
-        vk::ClearValue clear_value{
-            .color = std::array<float, 4>({0.0f, 0.0f, 0.0f, 1.0f})
+        vk::ClearValue colorCV{
+            .color = std::array<float, 4>({0.0f, 0.0f, 0.0f, 1.0f}),
         };
 
         vk::RenderingAttachmentInfo colorAttachment{
@@ -52,14 +58,27 @@ namespace jgw
             .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
             .loadOp = vk::AttachmentLoadOp::eClear,
             .storeOp = vk::AttachmentStoreOp::eStore,
-            .clearValue = clear_value
+            .clearValue = colorCV
+        };
+
+        vk::ClearValue depthCV{
+            .depthStencil = { .depth = 1.0f }
+        };
+
+        vk::RenderingAttachmentInfo depthAttachment{
+            .imageView = depthTexture->GetView(),
+            .imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
+            .loadOp = vk::AttachmentLoadOp::eClear,
+            .storeOp = vk::AttachmentStoreOp::eStore,
+            .clearValue = depthCV
         };
 
         vk::RenderingInfo renderInfo{
             .renderArea = {.offset = {0, 0}, .extent = contextPtr->GetSwapchain()->GetExtent() },
             .layerCount = 1,
             .colorAttachmentCount = 1,
-            .pColorAttachments = &colorAttachment
+            .pColorAttachments = &colorAttachment,
+            .pDepthAttachment = &depthAttachment
         };
 
         commandBuffer.beginRendering(renderInfo);
@@ -116,8 +135,17 @@ namespace jgw
         vertexBuffer.reset();
         indexBuffer.reset();
         pipeline.reset();
+        depthTexture.reset();
 
         BaseApp::Cleanup();
+    }
+
+    void ModelApp::OnResize(int width, int height)
+    {
+        BaseApp::OnResize(width, height);
+
+        depthTexture.reset();
+        CreateDepthBuffer();
     }
 
     bool ModelApp::LoadModel()
@@ -177,6 +205,33 @@ namespace jgw
         return true;
     }
 
+    bool ModelApp::CreateDepthBuffer()
+    {
+        auto extent = contextPtr->GetSwapchain()->GetExtent();
+        const TextureDesc desc{
+            .usageFlags = vk::ImageUsageFlagBits::eDepthStencilAttachment,
+            .format = vk::Format::eD32Sfloat,
+            .extent = {
+                .width = extent.width, .height = extent.height, .depth = 1
+            },
+            .aspectMask = vk::ImageAspectFlagBits::eDepth
+        };
+
+        const VmaAllocationDesc allocDesc{
+            .flags = vma::AllocationCreateFlagBits::eDedicatedMemory,
+            .usage = vma::MemoryUsage::eAutoPreferDevice
+        };
+
+        depthTexture = contextPtr->CreateTexture(desc, allocDesc);
+
+        if (depthTexture == nullptr)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     bool ModelApp::CreatePipeline()
     {
         std::vector<vk::VertexInputBindingDescription> bindingDescriptions = {
@@ -190,8 +245,11 @@ namespace jgw
         std::vector<vk::PushConstantRange> pushConstantRanges = {
             { .stageFlags = vk::ShaderStageFlagBits::eVertex, .offset = 0, .size = sizeof(glm::mat4) }
         };
+        std::vector<vk::Format> colorFormats = { contextPtr->GetSwapchain()->GetFormat() };
 
         IPipelineBuilder pd;
+        pd.SetColorFormats(colorFormats);
+        pd.SetDepthFormat(depthTexture->GetFormat());
         pd.SetVertexBindingDescriptions(bindingDescriptions);
         pd.SetVertexAttributeDescriptions(attributeDescriptions);
         pd.SetPushConstantRanges(pushConstantRanges);

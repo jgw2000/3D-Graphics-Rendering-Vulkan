@@ -4,6 +4,7 @@
 #include "Window.h"
 #include "VulkanSwapchain.h"
 #include "VulkanBuffer.h"
+#include "VulkanTexture.h"
 #include "VulkanPipeline.h"
 #include "IPipelineBuilder.h"
 
@@ -49,6 +50,8 @@ namespace jgw
             vma::AllocationCreateFlags flags = {},
             vma::MemoryUsage memoryUsage = vma::MemoryUsage::eAuto
         );
+
+        std::unique_ptr<VulkanTexture> CreateTexture(const TextureDesc& desc, const VmaAllocationDesc& allocDesc = {});
 
         void UploadBuffer(const void* data, VulkanBuffer* srcBuffer, VulkanBuffer* dstBuffer);
 

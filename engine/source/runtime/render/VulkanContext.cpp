@@ -331,11 +331,7 @@ namespace jgw
         auto colorBlendState = pd.BuildColorBlendState();
         auto dynamicState = pd.BuildDynamicState();
         auto pipelineLayout = pd.BuildLayout(device);
-
-        vk::PipelineRenderingCreateInfo renderingCI{
-            .colorAttachmentCount = 1,
-            .pColorAttachmentFormats = new vk::Format[1]{ swapchainPtr->GetFormat() },
-        };
+        auto renderingCI = pd.BuildRendering();
 
         vk::GraphicsPipelineCreateInfo pipelineCI{
             .pNext = &renderingCI,
@@ -376,6 +372,11 @@ namespace jgw
     )
     {
         return std::make_unique<VulkanBuffer>(size, bufferUsage, vmaAllocator, flags, memoryUsage);
+    }
+
+    std::unique_ptr<VulkanTexture> VulkanContext::CreateTexture(const TextureDesc& desc, const VmaAllocationDesc& allocDesc)
+    {
+        return std::make_unique<VulkanTexture>(device, vmaAllocator, desc, allocDesc);
     }
 
     void VulkanContext::UploadBuffer(const void* data, VulkanBuffer* srcBuffer, VulkanBuffer* dstBuffer)

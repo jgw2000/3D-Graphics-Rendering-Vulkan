@@ -2,6 +2,8 @@
 
 #include "BaseApp.h"
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
@@ -22,8 +24,10 @@ namespace jgw
         virtual bool Initialize() override;
         virtual void Render(vk::CommandBuffer commandBuffer) override;
         virtual void Cleanup() override;
+        virtual void OnResize(int width, int height) override;
 
     private:
+        bool CreateDepthBuffer();
         bool LoadModel();
         bool CreatePipeline();
 
@@ -33,5 +37,6 @@ namespace jgw
         std::unique_ptr<VulkanBuffer> vertexBuffer;
         std::unique_ptr<VulkanBuffer> indexBuffer;
         std::unique_ptr<VulkanPipeline> pipeline;
+        std::unique_ptr<VulkanTexture> depthTexture;
     };
 }

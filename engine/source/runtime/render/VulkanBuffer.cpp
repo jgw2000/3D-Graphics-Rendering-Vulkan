@@ -1,7 +1,5 @@
 #include "VulkanBuffer.h"
 
-#include <cassert>
-
 namespace jgw
 {
     VulkanBuffer::VulkanBuffer(
