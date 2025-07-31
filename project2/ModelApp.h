@@ -13,6 +13,13 @@
 
 namespace jgw
 {
+    struct VertexData
+    {
+        glm::vec3 pos;
+        glm::vec3 normal;
+        glm::vec2 uv;
+    };
+
     class ModelApp : public BaseApp
     {
     public:
@@ -31,7 +38,7 @@ namespace jgw
         bool LoadModel();
         bool CreatePipeline();
 
-        std::vector<glm::vec3> positions;
+        std::vector<VertexData> vertices;
         std::vector<uint32_t> indices;
 
         std::unique_ptr<VulkanBuffer> vertexBuffer;

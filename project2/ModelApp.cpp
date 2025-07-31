@@ -161,8 +161,14 @@ namespace jgw
         
         for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
         {
-            const aiVector3D& vertex = mesh->mVertices[i];
-            positions.push_back(glm::vec3(vertex.x, vertex.y, vertex.z));
+            const aiVector3D& v = mesh->mVertices[i];
+            const aiVector3D& n = mesh->mNormals[i];
+            const aiVector3D& t = mesh->mTextureCoords[0][i];
+            vertices.push_back({
+                .pos = glm::vec3(v.x, v.y, v.z),
+                .normal = glm::vec3(n.x, n.y, n.z),
+                .uv = glm::vec2(t.x, t.y)
+            });
         }
 
         for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
@@ -175,13 +181,13 @@ namespace jgw
 
         // Vertex Buffer
         std::unique_ptr<VulkanBuffer> stagingVertexBuffer = contextPtr->CreateBuffer(
-            sizeof(glm::vec3) * positions.size(),
+            sizeof(VertexData) * vertices.size(),
             vk::BufferUsageFlagBits::eTransferSrc,
             vma::AllocationCreateFlagBits::eMapped | vma::AllocationCreateFlagBits::eHostAccessSequentialWrite
         );
         
         vertexBuffer = contextPtr->CreateBuffer(
-            sizeof(glm::vec3) * positions.size(),
+            sizeof(VertexData) * vertices.size(),
             vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst
         );
 
@@ -198,7 +204,7 @@ namespace jgw
         );
 
         contextPtr->BeginCommand();
-        contextPtr->UploadBuffer(positions.data(), stagingVertexBuffer.get(), vertexBuffer.get());
+        contextPtr->UploadBuffer(vertices.data(), stagingVertexBuffer.get(), vertexBuffer.get());
         contextPtr->UploadBuffer(indices.data(), stagingIndexBuffer.get(), indexBuffer.get());
         contextPtr->EndCommand();
 
@@ -235,11 +241,13 @@ namespace jgw
     bool ModelApp::CreatePipeline()
     {
         std::vector<vk::VertexInputBindingDescription> bindingDescriptions = {
-            { .binding = 0, .stride = sizeof(glm::vec3), .inputRate = vk::VertexInputRate::eVertex}
+            { .binding = 0, .stride = sizeof(VertexData), .inputRate = vk::VertexInputRate::eVertex}
         };
 
         std::vector<vk::VertexInputAttributeDescription> attributeDescriptions = {
-            { .location = 0, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = 0 }
+            { .location = 0, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = 0 },
+            { .location = 1, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = offsetof(VertexData, normal) },
+            { .location = 2, .binding = 0, .format = vk::Format::eR32G32Sfloat,    .offset = offsetof(VertexData, uv) }
         };
 
         std::vector<vk::PushConstantRange> pushConstantRanges = {
