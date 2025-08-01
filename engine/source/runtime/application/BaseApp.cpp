@@ -124,6 +124,7 @@ namespace jgw
     std::unique_ptr<VulkanTexture> BaseApp::LoadTexture(const char* filename)
     {
         int w, h, comp;
+        stbi_set_flip_vertically_on_load(true);
         auto* data = stbi_load(filename, &w, &h, &comp, 4);
 
         const TextureDesc desc{
