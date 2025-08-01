@@ -1,11 +1,11 @@
-#include "IPipelineBuilder.h"
+#include "PipelineBuilder.h"
 
 #include <spdlog/spdlog.h>
 #include <fstream>
 
 namespace jgw
 {
-    std::vector<vk::PipelineShaderStageCreateInfo> IPipelineBuilder::BuildShaderStages(const vk::Device& device)
+    std::vector<vk::PipelineShaderStageCreateInfo> PipelineBuilder::BuildShaderStages(const vk::Device& device)
     {
         std::vector<vk::PipelineShaderStageCreateInfo> shaderStages;
         if (hasVertexShader) shaderStages.push_back(BuildVertexShaderStage(device));
@@ -13,7 +13,7 @@ namespace jgw
         return shaderStages;
     }
 
-    vk::PipelineShaderStageCreateInfo IPipelineBuilder::BuildVertexShaderStage(const vk::Device& device)
+    vk::PipelineShaderStageCreateInfo PipelineBuilder::BuildVertexShaderStage(const vk::Device& device)
     {
         vk::PipelineShaderStageCreateInfo shaderStageCI{
             .stage = vk::ShaderStageFlagBits::eVertex,
@@ -24,7 +24,7 @@ namespace jgw
         return shaderStageCI;
     }
 
-    vk::PipelineShaderStageCreateInfo IPipelineBuilder::BuildFragmentShaderStage(const vk::Device& device)
+    vk::PipelineShaderStageCreateInfo PipelineBuilder::BuildFragmentShaderStage(const vk::Device& device)
     {
         vk::PipelineShaderStageCreateInfo shaderStageCI{
             .stage = vk::ShaderStageFlagBits::eFragment,
@@ -35,7 +35,7 @@ namespace jgw
         return shaderStageCI;
     }
 
-    vk::PipelineVertexInputStateCreateInfo IPipelineBuilder::BuildVertexInputState()
+    vk::PipelineVertexInputStateCreateInfo PipelineBuilder::BuildVertexInputState()
     {
         vk::PipelineVertexInputStateCreateInfo vertexInputStateCI{
             .vertexBindingDescriptionCount = static_cast<uint32_t>(vertexBindingDescriptions.size()),
@@ -47,7 +47,7 @@ namespace jgw
         return vertexInputStateCI;
     }
 
-    vk::PipelineInputAssemblyStateCreateInfo IPipelineBuilder::BuildInputAssemblyState()
+    vk::PipelineInputAssemblyStateCreateInfo PipelineBuilder::BuildInputAssemblyState()
     {
         vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateCI{
             .topology = vk::PrimitiveTopology::eTriangleList,
@@ -57,7 +57,7 @@ namespace jgw
         return inputAssemblyStateCI;
     }
 
-    vk::PipelineViewportStateCreateInfo IPipelineBuilder::BuildViewportState()
+    vk::PipelineViewportStateCreateInfo PipelineBuilder::BuildViewportState()
     {
         vk::PipelineViewportStateCreateInfo viewportStateCI{
             .viewportCount = 1,
@@ -68,7 +68,7 @@ namespace jgw
         return viewportStateCI;
     }
 
-    vk::PipelineRasterizationStateCreateInfo IPipelineBuilder::BuildRasterizationState()
+    vk::PipelineRasterizationStateCreateInfo PipelineBuilder::BuildRasterizationState()
     {
         vk::PipelineRasterizationStateCreateInfo rasterizationStateCI{
             .depthClampEnable = vk::False,
@@ -86,7 +86,7 @@ namespace jgw
         return rasterizationStateCI;
     }
 
-    vk::PipelineMultisampleStateCreateInfo IPipelineBuilder::BuildMultisampleState()
+    vk::PipelineMultisampleStateCreateInfo PipelineBuilder::BuildMultisampleState()
     {
         vk::PipelineMultisampleStateCreateInfo multisampleStateCI{
             .rasterizationSamples = vk::SampleCountFlagBits::e1,
@@ -100,7 +100,7 @@ namespace jgw
         return multisampleStateCI;
     }
 
-    vk::PipelineDepthStencilStateCreateInfo IPipelineBuilder::BuildDepthStencilState()
+    vk::PipelineDepthStencilStateCreateInfo PipelineBuilder::BuildDepthStencilState()
     {
         vk::PipelineDepthStencilStateCreateInfo depthStencilStateCI{
             .depthTestEnable = vk::True,
@@ -111,7 +111,7 @@ namespace jgw
         return depthStencilStateCI;
     }
 
-    vk::PipelineColorBlendStateCreateInfo IPipelineBuilder::BuildColorBlendState()
+    vk::PipelineColorBlendStateCreateInfo PipelineBuilder::BuildColorBlendState()
     {
         colorBlendAttachmentStates.push_back(
             vk::PipelineColorBlendAttachmentState{
@@ -136,7 +136,7 @@ namespace jgw
         return colorBlendStateCI;
     }
 
-    vk::PipelineDynamicStateCreateInfo IPipelineBuilder::BuildDynamicState()
+    vk::PipelineDynamicStateCreateInfo PipelineBuilder::BuildDynamicState()
     {
         dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
 
@@ -148,7 +148,7 @@ namespace jgw
         return dynamicStateCI;
     }
 
-    vk::PipelineLayout IPipelineBuilder::BuildLayout(const vk::Device& device)
+    vk::PipelineLayout PipelineBuilder::BuildLayout(const vk::Device& device)
     {
         vk::PipelineLayoutCreateInfo pipelineLayoutCI{
             .setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size()),
@@ -160,7 +160,7 @@ namespace jgw
         return device.createPipelineLayout(pipelineLayoutCI);
     }
 
-    vk::PipelineRenderingCreateInfo IPipelineBuilder::BuildRendering()
+    vk::PipelineRenderingCreateInfo PipelineBuilder::BuildRendering()
     {
         vk::PipelineRenderingCreateInfo renderingCI{
             .colorAttachmentCount = static_cast<uint32_t>(colorFormats.size()),
@@ -171,19 +171,19 @@ namespace jgw
         return renderingCI;
     }
 
-    void IPipelineBuilder::SetVertexShaderFile(std::string filename)
+    void PipelineBuilder::SetVertexShaderFile(std::string filename)
     {
         vertexShaderFile = filename;
         hasVertexShader = true;
     }
 
-    void IPipelineBuilder::SetFragmentShaderFile(std::string filename)
+    void PipelineBuilder::SetFragmentShaderFile(std::string filename)
     {
         fragmentShaderFile = filename;
         hasFragmentShader = true;
     }
 
-    vk::ShaderModule IPipelineBuilder::LoadShader(const char* filename, const vk::Device& device)
+    vk::ShaderModule PipelineBuilder::LoadShader(const char* filename, const vk::Device& device)
     {
         std::ifstream is(filename, std::ios::binary | std::ios::in | std::ios::ate);
 

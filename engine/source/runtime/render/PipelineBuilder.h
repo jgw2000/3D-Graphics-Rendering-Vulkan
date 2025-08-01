@@ -8,12 +8,12 @@
 
 namespace jgw
 {
-    class IPipelineBuilder
+    class PipelineBuilder
     {
     public:
-        CLASS_COPY_MOVE_DELETE(IPipelineBuilder)
+        CLASS_COPY_MOVE_DELETE(PipelineBuilder)
 
-        IPipelineBuilder() = default;
+        PipelineBuilder() = default;
 
         virtual std::vector<vk::PipelineShaderStageCreateInfo> BuildShaderStages(const vk::Device& device);
         virtual vk::PipelineShaderStageCreateInfo BuildVertexShaderStage(const vk::Device& device);

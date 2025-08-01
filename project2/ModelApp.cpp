@@ -340,7 +340,7 @@ namespace jgw
 
         std::vector<vk::Format> colorFormats = { contextPtr->GetSwapchain()->GetFormat() };
 
-        IPipelineBuilder pd;
+        PipelineBuilder pd;
         pd.SetColorFormats(colorFormats);
         pd.SetDepthFormat(depthTexture->GetFormat());
         pd.SetVertexBindingDescriptions(bindingDescriptions);

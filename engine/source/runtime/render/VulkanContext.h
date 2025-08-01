@@ -6,7 +6,7 @@
 #include "VulkanBuffer.h"
 #include "VulkanTexture.h"
 #include "VulkanPipeline.h"
-#include "IPipelineBuilder.h"
+#include "PipelineBuilder.h"
 
 #include <VmaUsage.h>
 #include <vector>
@@ -43,7 +43,7 @@ namespace jgw
         vk::CommandBuffer GetCommandBuffer() { return commandBuffers[currentFrame]; }
         VulkanSwapchain* GetSwapchain() { return swapchainPtr.get(); }
 
-        std::unique_ptr<VulkanPipeline> CreateGraphicsPipeline(IPipelineBuilder& pd);
+        std::unique_ptr<VulkanPipeline> CreateGraphicsPipeline(PipelineBuilder& pd);
 
         std::unique_ptr<VulkanBuffer> CreateBuffer(
             vk::DeviceSize size,

@@ -14,7 +14,7 @@ namespace jgw
 
         std::vector<vk::Format> colorFormats = { contextPtr->GetSwapchain()->GetFormat() };
 
-        IPipelineBuilder pd;
+        PipelineBuilder pd;
         pd.SetColorFormats(colorFormats);
         pd.SetVertexShaderFile("shaders/triangle.vert.spv");
         pd.SetFragmentShaderFile("shaders/triangle.frag.spv");

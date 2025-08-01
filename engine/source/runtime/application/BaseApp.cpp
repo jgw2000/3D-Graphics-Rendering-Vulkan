@@ -1,5 +1,5 @@
 #include "BaseApp.h"
-#include "IPipelineBuilder.h"
+#include "PipelineBuilder.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb.h>

@@ -319,7 +319,7 @@ namespace jgw
             graphicsQueue.waitIdle();
     }
 
-    std::unique_ptr<VulkanPipeline> VulkanContext::CreateGraphicsPipeline(IPipelineBuilder& pd)
+    std::unique_ptr<VulkanPipeline> VulkanContext::CreateGraphicsPipeline(PipelineBuilder& pd)
     {
         auto shaderStages = pd.BuildShaderStages(device);
         auto vertexInputState = pd.BuildVertexInputState();
