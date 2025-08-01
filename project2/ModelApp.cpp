@@ -27,6 +27,12 @@ namespace jgw
             return false;
         }
 
+        if (!CreateDescriptors())
+        {
+            spdlog::error("Failed to create descriptors");
+            return false;
+        }
+
         if (!CreatePipeline())
         {
             spdlog::error("Failed to create pipeline");
@@ -84,6 +90,7 @@ namespace jgw
         commandBuffer.beginRendering(renderInfo);
 
         commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Handle());
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline->Layout(), 0, 1, &descriptorSet, 0, nullptr);
 
         vk::Buffer vertexBuffers[] = { vertexBuffer->Handle() };
         vk::DeviceSize offsets[] = { 0 };
@@ -132,6 +139,11 @@ namespace jgw
 
     void ModelApp::Cleanup()
     {
+        auto device = GetDevice();
+        device.destroyDescriptorSetLayout(descriptorSetLayout);
+        device.destroyDescriptorPool(descriptorPool);
+        device.destroySampler(sampler);
+
         vertexBuffer.reset();
         indexBuffer.reset();
         pipeline.reset();
@@ -207,8 +219,15 @@ namespace jgw
         contextPtr->BeginCommand();
         contextPtr->UploadBuffer(vertices.data(), stagingVertexBuffer.get(), vertexBuffer.get());
         contextPtr->UploadBuffer(indices.data(), stagingIndexBuffer.get(), indexBuffer.get());
-        modelTexture = LoadTexture("rubber_duck/textures/Duck_baseColor.png");
         contextPtr->EndCommand();
+
+        modelTexture = LoadTexture("rubber_duck/textures/Duck_baseColor.png");
+
+        vk::SamplerCreateInfo samplerCI{
+            .magFilter = vk::Filter::eLinear,
+            .minFilter = vk::Filter::eLinear
+        };
+        sampler = GetDevice().createSampler(samplerCI);
         
         return true;
     }
@@ -240,6 +259,68 @@ namespace jgw
         return true;
     }
 
+    bool ModelApp::CreateDescriptors()
+    {
+        auto device = GetDevice();
+
+        // Create descriptor set layout
+        vk::DescriptorSetLayoutBinding samplerBinding{
+            .binding = 0,
+            .descriptorType = vk::DescriptorType::eCombinedImageSampler,
+            .descriptorCount = 1,
+            .stageFlags = vk::ShaderStageFlagBits::eFragment
+        };
+
+        vk::DescriptorSetLayoutCreateInfo layoutCI{
+            .bindingCount = 1,
+            .pBindings = &samplerBinding
+        };
+
+        descriptorSetLayout = device.createDescriptorSetLayout(layoutCI);
+
+        // Create descriptor pool
+        vk::DescriptorPoolSize poolSize{
+            .type = vk::DescriptorType::eCombinedImageSampler,
+            .descriptorCount = 1
+        };
+
+        vk::DescriptorPoolCreateInfo poolInfo{
+            .maxSets = 1,
+            .poolSizeCount = 1,
+            .pPoolSizes = &poolSize
+        };
+
+        descriptorPool = device.createDescriptorPool(poolInfo);
+
+        // Create descriptor sets
+        vk::DescriptorSetAllocateInfo allocInfo{
+            .descriptorPool = descriptorPool,
+            .descriptorSetCount = 1,
+            .pSetLayouts = &descriptorSetLayout
+        };
+
+        descriptorSet = device.allocateDescriptorSets(allocInfo)[0];
+
+        vk::DescriptorImageInfo imageInfo{
+            .sampler = sampler,
+            .imageView = modelTexture->GetView(),
+            .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal
+        };
+
+        vk::WriteDescriptorSet descriptorWrite{
+            .dstSet = descriptorSet,
+            .dstBinding = 0,
+            .dstArrayElement = 0,
+            .descriptorCount = 1,
+            .descriptorType = vk::DescriptorType::eCombinedImageSampler,
+            .pImageInfo = &imageInfo
+        };
+
+        device.updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+
+        return true;
+    }
+
     bool ModelApp::CreatePipeline()
     {
         std::vector<vk::VertexInputBindingDescription> bindingDescriptions = {
@@ -252,9 +333,11 @@ namespace jgw
             { .location = 2, .binding = 0, .format = vk::Format::eR32G32Sfloat,    .offset = offsetof(VertexData, uv) }
         };
 
+        std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { descriptorSetLayout };
         std::vector<vk::PushConstantRange> pushConstantRanges = {
             { .stageFlags = vk::ShaderStageFlagBits::eVertex, .offset = 0, .size = sizeof(glm::mat4) }
         };
+
         std::vector<vk::Format> colorFormats = { contextPtr->GetSwapchain()->GetFormat() };
 
         IPipelineBuilder pd;
@@ -262,7 +345,9 @@ namespace jgw
         pd.SetDepthFormat(depthTexture->GetFormat());
         pd.SetVertexBindingDescriptions(bindingDescriptions);
         pd.SetVertexAttributeDescriptions(attributeDescriptions);
+        pd.SetDescriptorSetLayouts(descriptorSetLayouts);
         pd.SetPushConstantRanges(pushConstantRanges);
+
         pd.SetVertexShaderFile("shaders/model.vert.spv");
         pd.SetFragmentShaderFile("shaders/model.frag.spv");
 

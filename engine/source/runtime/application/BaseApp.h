@@ -29,6 +29,8 @@ namespace jgw
         virtual std::vector<const char*> GetInstanceExtensions() const;
         virtual std::vector<const char*> GetDeviceExtensions() const;
 
+        vk::Device GetDevice() { return contextPtr->GetDevice(); }
+
         void TransitionImageLayout(
             vk::CommandBuffer       commandBuffer,
             vk::Image               image,

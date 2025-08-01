@@ -39,6 +39,7 @@ namespace jgw
         void WaitDeviceIdle();
         void WaitQueueIdle();
 
+        vk::Device GetDevice() { return device; }
         vk::CommandBuffer GetCommandBuffer() { return commandBuffers[currentFrame]; }
         VulkanSwapchain* GetSwapchain() { return swapchainPtr.get(); }
 

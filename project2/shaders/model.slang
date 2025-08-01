@@ -12,6 +12,8 @@ struct VSOutput
     float2 uv;
 };
 
+Sampler2D samplerColor;
+
 [shader("vertex")]
 VSOutput vertexMain(VSInput input, uniform float4x4 mvp)
 {
@@ -25,5 +27,5 @@ VSOutput vertexMain(VSInput input, uniform float4x4 mvp)
 [shader("fragment")]
 float4 fragmentMain(VSOutput input)
 {
-    return float4(input.normal, 1.0);
+    return samplerColor.Sample(input.uv);
 }

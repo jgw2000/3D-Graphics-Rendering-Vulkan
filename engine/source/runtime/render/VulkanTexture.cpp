@@ -5,15 +5,13 @@ namespace jgw
     VulkanTexture::VulkanTexture(vk::Device device, vma::Allocator allocator, const TextureDesc& desc, const VmaAllocationDesc& allocDesc)
         : device(device)
         , vmaAllocator(allocator)
-        , imageType(desc.imageType)
-        , format(desc.format)
-        , extent(desc.extent)
+        , desc(desc)
     {
         vk::ImageCreateInfo imageCI{
             .flags = desc.flags,
-            .imageType = imageType,
-            .format = format,
-            .extent = extent,
+            .imageType = desc.imageType,
+            .format = desc.format,
+            .extent = desc.extent,
             .mipLevels = desc.mipLevels,
             .arrayLayers = desc.arrayLayers,
             .samples = desc.samples,
@@ -22,7 +20,7 @@ namespace jgw
             .sharingMode = desc.sharingMode,
             .queueFamilyIndexCount = static_cast<uint32_t>(desc.queueFamilyIndices.size()),
             .pQueueFamilyIndices = desc.queueFamilyIndices.data(),
-            .initialLayout = desc.initialLayout
+            .initialLayout = desc.imageLayout
         };
 
         vma::AllocationCreateInfo allocationCI{
@@ -58,5 +56,28 @@ namespace jgw
     {
         device.destroyImageView(imageView);
         vmaAllocator.destroyImage(image, vmaAllocation);
+    }
+
+    void VulkanTexture::TransitionLayout(vk::CommandBuffer commandBuffer, vk::ImageLayout layout)
+    {
+        vk::ImageMemoryBarrier barrier{
+            .srcAccessMask = {},
+            .dstAccessMask = {},
+            .oldLayout = desc.imageLayout,
+            .newLayout = layout,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = image,
+            .subresourceRange = {
+                .aspectMask = desc.aspectMask,
+                .baseMipLevel = 0,
+                .levelCount = desc.mipLevels,
+                .baseArrayLayer = 0,
+                .layerCount = desc.arrayLayers
+            }
+        };
+
+        commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllCommands, {}, 0, nullptr, 0, nullptr, 1, &barrier);
+        desc.imageLayout = layout;
     }
 }

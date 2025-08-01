@@ -397,9 +397,25 @@ namespace jgw
     {
         memcpy(srcBuffer->mappedMemory, data, srcBuffer->size);
 
-        // TODO
-
         auto commandBuffer = GetCommandBuffer();
+        dstTexture->TransitionLayout(commandBuffer, vk::ImageLayout::eTransferDstOptimal);
+
+        vk::BufferImageCopy region{
+            .bufferOffset = 0,
+            .bufferRowLength = 0,
+            .bufferImageHeight = 0,
+            .imageSubresource = {
+                .aspectMask = dstTexture->desc.aspectMask,
+                .mipLevel = 0,
+                .baseArrayLayer = 0,
+                .layerCount = dstTexture->desc.arrayLayers
+            },
+            .imageOffset = { 0, 0, 0 },
+            .imageExtent = dstTexture->desc.extent
+        };
+        commandBuffer.copyBufferToImage(srcBuffer->buffer, dstTexture->image, vk::ImageLayout::eTransferDstOptimal, 1, &region);
+        
+        dstTexture->TransitionLayout(commandBuffer, vk::ImageLayout::eShaderReadOnlyOptimal);
     }
 
     bool VulkanContext::CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const

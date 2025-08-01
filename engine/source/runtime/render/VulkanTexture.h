@@ -20,7 +20,7 @@ namespace jgw
         vk::ImageTiling tiling = vk::ImageTiling::eOptimal;
         vk::SharingMode sharingMode = vk::SharingMode::eExclusive;
         std::vector<uint32_t> queueFamilyIndices = {};
-        vk::ImageLayout initialLayout = vk::ImageLayout::eUndefined;
+        vk::ImageLayout imageLayout = vk::ImageLayout::eUndefined;
         vk::ImageAspectFlags aspectMask = vk::ImageAspectFlagBits::eColor;
     };
 
@@ -33,6 +33,8 @@ namespace jgw
 
     class VulkanTexture final
     {
+        friend class VulkanContext;
+
     public:
         CLASS_COPY_MOVE_DELETE(VulkanTexture)
 
@@ -40,7 +42,9 @@ namespace jgw
 
         ~VulkanTexture();
 
-        vk::Format GetFormat() const { return format; }
+        void TransitionLayout(vk::CommandBuffer commandBuffer, vk::ImageLayout layout);
+
+        vk::Format GetFormat() const { return desc.format; }
         vk::ImageView GetView() const { return imageView; }
 
     private:
@@ -51,8 +55,7 @@ namespace jgw
         vk::Device device;
         vk::Image image;
         vk::ImageView imageView;
-        vk::ImageType imageType;
-        vk::Format format;
-        vk::Extent3D extent;
+        
+        TextureDesc desc;
     };
 }

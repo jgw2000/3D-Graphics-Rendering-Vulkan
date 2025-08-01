@@ -36,6 +36,7 @@ namespace jgw
     private:
         bool LoadModel();
         bool CreateDepthBuffer();
+        bool CreateDescriptors();
         bool CreatePipeline();
 
         std::vector<VertexData> vertices;
@@ -46,5 +47,10 @@ namespace jgw
         std::unique_ptr<VulkanPipeline> pipeline;
         std::unique_ptr<VulkanTexture> depthTexture;
         std::unique_ptr<VulkanTexture> modelTexture;
+
+        vk::Sampler sampler{};
+        vk::DescriptorPool descriptorPool{};
+        vk::DescriptorSet descriptorSet{};
+        vk::DescriptorSetLayout descriptorSetLayout{};
     };
 }

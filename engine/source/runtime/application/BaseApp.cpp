@@ -124,7 +124,7 @@ namespace jgw
     std::unique_ptr<VulkanTexture> BaseApp::LoadTexture(const char* filename)
     {
         int w, h, comp;
-        auto* data = stbi_load("rubber_duck/textures/Duck_baseColor.png", &w, &h, &comp, 4);
+        auto* data = stbi_load(filename, &w, &h, &comp, 4);
 
         const TextureDesc desc{
             .usageFlags = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
@@ -147,7 +147,11 @@ namespace jgw
             vma::AllocationCreateFlagBits::eMapped | vma::AllocationCreateFlagBits::eHostAccessSequentialWrite
         );
 
+        // TODO
+        contextPtr->BeginCommand();
         contextPtr->UploadTexture(data, stagingBuffer.get(), texture.get());
+        contextPtr->EndCommand();
+
         stbi_image_free(data);
 
         return texture;
