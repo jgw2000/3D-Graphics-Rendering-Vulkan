@@ -108,7 +108,7 @@ namespace jgw
             .dstAccessMask = dstAccessMask,
             .oldLayout = oldLayout,
             .newLayout = newLayout,
-            .image = contextPtr->GetSwapchain()->GetImage(),
+            .image = image,
             .subresourceRange = {
                 .aspectMask = vk::ImageAspectFlagBits::eColor,
                 .baseMipLevel = 0,

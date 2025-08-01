@@ -12,7 +12,10 @@ namespace jgw
         if (!BaseApp::Initialize())
             return false;
 
+        std::vector<vk::Format> colorFormats = { contextPtr->GetSwapchain()->GetFormat() };
+
         IPipelineBuilder pd;
+        pd.SetColorFormats(colorFormats);
         pd.SetVertexShaderFile("shaders/triangle.vert.spv");
         pd.SetFragmentShaderFile("shaders/triangle.frag.spv");
         pipeline = contextPtr->CreateGraphicsPipeline(pd);
