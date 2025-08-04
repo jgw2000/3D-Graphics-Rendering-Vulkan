@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Macro.h"
-
-#include <VmaUsage.h>
+#include "Common.h"
 
 namespace jgw
 {

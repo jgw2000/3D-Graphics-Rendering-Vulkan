@@ -14,6 +14,7 @@
 * spdlog 1.15.3
 * assimp 5.4.3
 * stb cci.20230920
+* imgui 1.92.0
 
 ### Project 1 - Triangle
 ![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/project1/triangle.png)

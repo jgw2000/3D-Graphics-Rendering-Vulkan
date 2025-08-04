@@ -1,6 +1,5 @@
 #include "PipelineBuilder.h"
 
-#include <spdlog/spdlog.h>
 #include <fstream>
 
 namespace jgw

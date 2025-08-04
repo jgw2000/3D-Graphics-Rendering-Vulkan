@@ -2,8 +2,6 @@
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
-#include <spdlog/spdlog.h>
-
 namespace jgw
 {
     VulkanContext::VulkanContext()

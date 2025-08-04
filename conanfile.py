@@ -11,6 +11,7 @@ class ExampleRecipe(ConanFile):
         self.requires("spdlog/1.15.3")
         self.requires("assimp/5.4.3")
         self.requires("stb/cci.20230920")
+        self.requires("imgui/1.92.0")
 
     def layout(self):
         cmake_layout(self)

@@ -1,8 +1,5 @@
 #include "ModelApp.h"
 
-#include <spdlog/spdlog.h>
-#include <vector>
-
 namespace jgw
 {
     ModelApp::ModelApp(const WindowConfig& config) : BaseApp(config)

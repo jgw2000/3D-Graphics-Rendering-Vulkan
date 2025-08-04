@@ -1,16 +1,12 @@
 #pragma once
 
-#include "Macro.h"
+#include "Common.h"
 #include "Window.h"
 #include "VulkanSwapchain.h"
 #include "VulkanBuffer.h"
 #include "VulkanTexture.h"
 #include "VulkanPipeline.h"
 #include "PipelineBuilder.h"
-
-#include <VmaUsage.h>
-#include <vector>
-#include <memory>
 
 namespace jgw
 {

@@ -1,10 +1,7 @@
 #pragma once
 
-#include "Macro.h"
+#include "Common.h"
 #include "Window.h"
-
-#include <VmaUsage.h>
-#include <vector>
 
 namespace jgw
 {

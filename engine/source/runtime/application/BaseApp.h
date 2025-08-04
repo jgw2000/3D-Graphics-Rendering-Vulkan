@@ -1,10 +1,7 @@
 #pragma once
 
-#include "Macro.h"
 #include "Window.h"
 #include "VulkanContext.h"
-
-#include <vector>
 
 namespace jgw
 {
