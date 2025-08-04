@@ -221,11 +221,14 @@ namespace jgw
         contextPtr->UploadBuffer(indices.data(), stagingIndexBuffer.get(), indexBuffer.get());
         contextPtr->EndCommand();
 
-        modelTexture = LoadTexture("rubber_duck/textures/Duck_baseColor.png");
+        modelTexture = LoadTexture("rubber_duck/textures/Duck_baseColor.png", true);
 
         vk::SamplerCreateInfo samplerCI{
             .magFilter = vk::Filter::eLinear,
-            .minFilter = vk::Filter::eLinear
+            .minFilter = vk::Filter::eLinear,
+            .mipmapMode = vk::SamplerMipmapMode::eLinear,
+            .minLod = 0,
+            .maxLod = 13
         };
         sampler = GetDevice().createSampler(samplerCI);
         

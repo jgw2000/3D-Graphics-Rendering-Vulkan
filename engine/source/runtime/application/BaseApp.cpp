@@ -121,19 +121,21 @@ namespace jgw
         commandBuffer.pipelineBarrier(srcStage, dstStage, {}, {}, {}, imageMemoryBarrier);
     }
 
-    std::unique_ptr<VulkanTexture> BaseApp::LoadTexture(const char* filename)
+    std::unique_ptr<VulkanTexture> BaseApp::LoadTexture(const char* filename, bool mipmapped)
     {
         int w, h, comp;
         stbi_set_flip_vertically_on_load(true);
         auto* data = stbi_load(filename, &w, &h, &comp, 4);
 
         const TextureDesc desc{
-            .usageFlags = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+            .usageFlags = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
             .extent = {
                 .width = static_cast<uint32_t>(w),
                 .height = static_cast<uint32_t>(h),
                 .depth = 1
-            }
+            },
+            .mipLevels = mipmapped ? static_cast<uint32_t>(std::floor(std::log2(std::max<int>(w, h)))) + 1 : 1,
+            .mipmapped = mipmapped
         };
 
         const VmaAllocationDesc allocDesc{

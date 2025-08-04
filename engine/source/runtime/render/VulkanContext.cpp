@@ -398,7 +398,7 @@ namespace jgw
         memcpy(srcBuffer->mappedMemory, data, srcBuffer->size);
 
         auto commandBuffer = GetCommandBuffer();
-        dstTexture->TransitionLayout(commandBuffer, vk::ImageLayout::eTransferDstOptimal);
+        dstTexture->TransitionLayout(commandBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 
         vk::BufferImageCopy region{
             .bufferOffset = 0,
@@ -415,7 +415,8 @@ namespace jgw
         };
         commandBuffer.copyBufferToImage(srcBuffer->buffer, dstTexture->image, vk::ImageLayout::eTransferDstOptimal, 1, &region);
         
-        dstTexture->TransitionLayout(commandBuffer, vk::ImageLayout::eShaderReadOnlyOptimal);
+        dstTexture->GenerateMipmap(commandBuffer);
+        dstTexture->TransitionMipLayout(commandBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, dstTexture->desc.mipLevels - 1);
     }
 
     bool VulkanContext::CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const

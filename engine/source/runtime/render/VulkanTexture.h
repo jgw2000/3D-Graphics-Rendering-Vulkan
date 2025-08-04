@@ -20,8 +20,9 @@ namespace jgw
         vk::ImageTiling tiling = vk::ImageTiling::eOptimal;
         vk::SharingMode sharingMode = vk::SharingMode::eExclusive;
         std::vector<uint32_t> queueFamilyIndices = {};
-        vk::ImageLayout imageLayout = vk::ImageLayout::eUndefined;
+        vk::ImageLayout initialLayout = vk::ImageLayout::eUndefined;
         vk::ImageAspectFlags aspectMask = vk::ImageAspectFlagBits::eColor;
+        bool mipmapped = false;
     };
 
     struct VmaAllocationDesc
@@ -42,7 +43,9 @@ namespace jgw
 
         ~VulkanTexture();
 
-        void TransitionLayout(vk::CommandBuffer commandBuffer, vk::ImageLayout layout);
+        void TransitionLayout(vk::CommandBuffer commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+        void TransitionMipLayout(vk::CommandBuffer commandBuffer, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, uint32_t mipLevel);
+        void GenerateMipmap(vk::CommandBuffer commandBuffer);
 
         vk::Format GetFormat() const { return desc.format; }
         vk::ImageView GetView() const { return imageView; }
