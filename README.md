@@ -16,8 +16,12 @@
 * stb cci.20230920
 * imgui 1.92.0
 
+## 特性
+* Dynamic Rendering
+* Slang
+
 ### Project 1 - Triangle
 ![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/project1/triangle.png)
 
-* Dynamic Rendering
-* Slang
+### Project 2 - Model
+![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/project2/model.png)
