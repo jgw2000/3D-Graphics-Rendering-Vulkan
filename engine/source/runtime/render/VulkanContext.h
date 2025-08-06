@@ -35,9 +35,14 @@ namespace jgw
         void WaitDeviceIdle();
         void WaitQueueIdle();
 
-        vk::Device GetDevice() { return device; }
-        vk::CommandBuffer GetCommandBuffer() { return commandBuffers[currentFrame]; }
-        VulkanSwapchain* GetSwapchain() { return swapchainPtr.get(); }
+        uint32_t GetApiVersion() const { return apiVersion; }
+        uint32_t GetQueuFamily() const { return graphicsFamilyIndex; }
+        vk::Instance GetInstance() const { return instance; }
+        vk::PhysicalDevice GetPhysicalDevice() const { return physicalDevice; }
+        vk::Device GetDevice() const { return device; }
+        vk::Queue GetQueue() const { return graphicsQueue; }
+        vk::CommandBuffer GetCommandBuffer() const { return commandBuffers[currentFrame]; }
+        VulkanSwapchain* GetSwapchain() const { return swapchainPtr.get(); }
 
         std::unique_ptr<VulkanPipeline> CreateGraphicsPipeline(PipelineBuilder& pd);
 

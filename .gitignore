@@ -32,5 +32,7 @@
 *.app
 
 .vscode
+*.ini
+
 build
 CMakeUserPresets.json

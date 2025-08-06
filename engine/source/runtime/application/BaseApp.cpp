@@ -52,11 +52,19 @@ namespace jgw
         if (!contextPtr->Initialize(handle, instanceLayers, instanceExtensions, deviceExtensions))
             return false;
 
+        imguiPtr = std::make_unique<VulkanImgui>();
+
         return true;
+    }
+
+    void BaseApp::Update()
+    {
+        imguiPtr->Update();
     }
 
     void BaseApp::Cleanup()
     {
+        imguiPtr.reset();
         contextPtr.reset();
         windowPtr.reset();
     }

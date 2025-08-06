@@ -24,7 +24,7 @@ namespace jgw
         vk::Extent2D GetExtent() { return swapchainExtent; }
         vk::Format GetFormat() const { return surfaceFormat.format; }
         uint32_t GetImageIndex() const { return imageIndex; }
-
+        uint32_t GetImageCount() const { return swapchainImages.size(); }
 
     private:
         uint32_t ChooseMinImageCount() const;

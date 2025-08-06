@@ -36,6 +36,19 @@ namespace jgw
             return false;
         }
 
+        imguiPtr->Initialize(
+            windowPtr->GetHandle(),
+            contextPtr->GetInstance(),
+            contextPtr->GetPhysicalDevice(),
+            contextPtr->GetDevice(),
+            contextPtr->GetQueue(),
+            contextPtr->GetQueuFamily(),
+            contextPtr->GetSwapchain()->GetImageCount(),
+            static_cast<VkFormat>(contextPtr->GetSwapchain()->GetFormat()),
+            static_cast<VkFormat>(vk::Format::eD32Sfloat),
+            contextPtr->GetApiVersion()
+        );
+
         return true;
     }
 
@@ -119,6 +132,8 @@ namespace jgw
 
         commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4), &mvp);
         commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
+
+        imguiPtr->Render(commandBuffer);
 
         commandBuffer.endRendering();
 

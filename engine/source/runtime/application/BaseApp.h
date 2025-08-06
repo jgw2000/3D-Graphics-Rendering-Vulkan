@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Window.h"
+#include "VulkanImgui.h"
 #include "VulkanContext.h"
 
 namespace jgw
@@ -16,11 +17,12 @@ namespace jgw
 
     protected:
         virtual bool Initialize();
-        virtual void Update() {}
+        virtual void Update();
         virtual void Render(vk::CommandBuffer commandBuffer) {}
         virtual void Cleanup();
         virtual void OnKey(int key, int scancode, int action, int mods) {}
         virtual void OnResize(int width, int height);
+        virtual void CreateUI() {}
 
         virtual std::vector<const char*> GetInstanceLayers() const;
         virtual std::vector<const char*> GetInstanceExtensions() const;
@@ -43,6 +45,7 @@ namespace jgw
 
         std::unique_ptr<Window> windowPtr;
         std::unique_ptr<VulkanContext> contextPtr;
+        std::unique_ptr<VulkanImgui> imguiPtr;
 
     private:
         void SetCallback(GLFWwindow* handle);
