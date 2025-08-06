@@ -30,7 +30,6 @@ namespace jgw
     protected:
         virtual bool OnInit() override;
         virtual void OnRender(vk::CommandBuffer commandBuffer) override;
-        virtual void OnGUI() override;
         virtual void Cleanup() override;
         virtual void OnResize(int width, int height) override;
 
@@ -53,7 +52,5 @@ namespace jgw
         vk::DescriptorPool descriptorPool{};
         vk::DescriptorSet descriptorSet{};
         vk::DescriptorSetLayout descriptorSetLayout{};
-
-        bool showDemo = true;
     };
 }

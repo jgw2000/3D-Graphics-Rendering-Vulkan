@@ -117,12 +117,6 @@ namespace jgw
         commandBuffer.endRendering();
     }
 
-    void ModelApp::OnGUI()
-    {
-        if (showDemo)
-            ImGui::ShowDemoWindow(&showDemo);
-    }
-
     void ModelApp::Cleanup()
     {
         auto device = GetDevice();
