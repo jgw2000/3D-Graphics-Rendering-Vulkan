@@ -7,11 +7,8 @@ namespace jgw
 
     }
 
-    bool TriangleApp::Initialize()
+    bool TriangleApp::OnInit()
     {
-        if (!BaseApp::Initialize())
-            return false;
-
         std::vector<vk::Format> colorFormats = { contextPtr->GetSwapchain()->GetFormat() };
 
         PipelineBuilder pd;
@@ -25,22 +22,11 @@ namespace jgw
             return false;
         }
 
-        return true;
+        return InitImgui(vk::Format::eUndefined);
     }
 
-    void TriangleApp::Render(vk::CommandBuffer commandBuffer)
+    void TriangleApp::OnRender(vk::CommandBuffer commandBuffer)
     {
-        TransitionImageLayout(
-            commandBuffer,
-            contextPtr->GetSwapchain()->GetImage(),
-            vk::ImageLayout::eUndefined,
-            vk::ImageLayout::eColorAttachmentOptimal,
-            {},
-            vk::AccessFlagBits::eColorAttachmentWrite,
-            vk::PipelineStageFlagBits::eTopOfPipe,
-            vk::PipelineStageFlagBits::eColorAttachmentOutput
-        );
-
         vk::ClearValue clear_value{
             .color = std::array<float, 4>({0.0f, 0.0f, 0.0f, 1.0f})
         };
@@ -84,17 +70,6 @@ namespace jgw
         commandBuffer.draw(3, 1, 0, 0); // Draw a triangle
 
         commandBuffer.endRendering();
-
-        TransitionImageLayout(
-            commandBuffer,
-            contextPtr->GetSwapchain()->GetImage(),
-            vk::ImageLayout::eColorAttachmentOptimal,
-            vk::ImageLayout::ePresentSrcKHR,
-            vk::AccessFlagBits::eColorAttachmentWrite,
-            {},
-            vk::PipelineStageFlagBits::eColorAttachmentOutput,
-            vk::PipelineStageFlagBits::eBottomOfPipe
-        );
     }
 
     void TriangleApp::Cleanup()

@@ -7,11 +7,8 @@ namespace jgw
 
     }
 
-    bool ModelApp::Initialize()
+    bool ModelApp::OnInit()
     {
-        if (!BaseApp::Initialize())
-            return false;
-
         if (!LoadModel())
         {
             spdlog::error("Failed to load model");
@@ -36,35 +33,17 @@ namespace jgw
             return false;
         }
 
-        imguiPtr->Initialize(
-            windowPtr->GetHandle(),
-            contextPtr->GetInstance(),
-            contextPtr->GetPhysicalDevice(),
-            contextPtr->GetDevice(),
-            contextPtr->GetQueue(),
-            contextPtr->GetQueuFamily(),
-            contextPtr->GetSwapchain()->GetImageCount(),
-            static_cast<VkFormat>(contextPtr->GetSwapchain()->GetFormat()),
-            static_cast<VkFormat>(vk::Format::eD32Sfloat),
-            contextPtr->GetApiVersion()
-        );
+        if (!InitImgui(vk::Format::eD32Sfloat))
+        {
+            spdlog::error("Failed to initialize imgui");
+            return false;
+        }
 
         return true;
     }
 
-    void ModelApp::Render(vk::CommandBuffer commandBuffer)
+    void ModelApp::OnRender(vk::CommandBuffer commandBuffer)
     {
-        TransitionImageLayout(
-            commandBuffer,
-            contextPtr->GetSwapchain()->GetImage(),
-            vk::ImageLayout::eUndefined,
-            vk::ImageLayout::eColorAttachmentOptimal,
-            {},
-            vk::AccessFlagBits::eColorAttachmentWrite,
-            vk::PipelineStageFlagBits::eTopOfPipe,
-            vk::PipelineStageFlagBits::eColorAttachmentOutput
-        );
-
         vk::ClearValue colorCV{
             .color = std::array<float, 4>({0.0f, 0.0f, 0.0f, 1.0f}),
         };
@@ -136,17 +115,12 @@ namespace jgw
         imguiPtr->Render(commandBuffer);
 
         commandBuffer.endRendering();
+    }
 
-        TransitionImageLayout(
-            commandBuffer,
-            contextPtr->GetSwapchain()->GetImage(),
-            vk::ImageLayout::eColorAttachmentOptimal,
-            vk::ImageLayout::ePresentSrcKHR,
-            vk::AccessFlagBits::eColorAttachmentWrite,
-            {},
-            vk::PipelineStageFlagBits::eColorAttachmentOutput,
-            vk::PipelineStageFlagBits::eBottomOfPipe
-        );
+    void ModelApp::OnGUI()
+    {
+        if (showDemo)
+            ImGui::ShowDemoWindow(&showDemo);
     }
 
     void ModelApp::Cleanup()
@@ -362,7 +336,6 @@ namespace jgw
         pd.SetVertexAttributeDescriptions(attributeDescriptions);
         pd.SetDescriptorSetLayouts(descriptorSetLayouts);
         pd.SetPushConstantRanges(pushConstantRanges);
-
         pd.SetVertexShaderFile("shaders/model.vert.spv");
         pd.SetFragmentShaderFile("shaders/model.frag.spv");
 

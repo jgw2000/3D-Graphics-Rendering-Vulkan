@@ -95,21 +95,18 @@ namespace jgw
             }
         };
 
-        PFN_vkCmdBeginRenderingKHR ImGuiImplVulkanFuncs_vkCmdBeginRenderingKHR = reinterpret_cast<PFN_vkCmdBeginRenderingKHR>(vkGetDeviceProcAddr(device, "vkCmdBeginRendering"));
-        ImGui_ImplVulkan_Init(&init_info);
-
-        return true;
+        return ImGui_ImplVulkan_Init(&init_info);
     }
 
-    void VulkanImgui::Update()
+    void VulkanImgui::BeginFrame()
     {
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+    }
 
-        if (showDemo)
-            ImGui::ShowDemoWindow(&showDemo);
-
+    void VulkanImgui::EndFrame()
+    {
         ImGui::EndFrame();
     }
 

@@ -1,8 +1,13 @@
 #pragma once
 
 #include "Window.h"
-#include "VulkanImgui.h"
 #include "VulkanContext.h"
+#include "VulkanImgui.h"
+
+#define IMGUI_IMPL_VULKAN_NO_PROTOTYPES
+#include "imgui.h"
+#include "bindings/imgui_impl_glfw.h"
+#include "bindings/imgui_impl_vulkan.h"
 
 namespace jgw
 {
@@ -16,19 +21,21 @@ namespace jgw
         void Start();
 
     protected:
-        virtual bool Initialize();
-        virtual void Update();
-        virtual void Render(vk::CommandBuffer commandBuffer) {}
         virtual void Cleanup();
+        virtual bool OnInit() { return true; }
+        virtual void OnRender(vk::CommandBuffer commandBuffer) {}
+        virtual void OnGUI() {}
+        virtual void OnUpdate() {}
         virtual void OnKey(int key, int scancode, int action, int mods) {}
         virtual void OnResize(int width, int height);
-        virtual void CreateUI() {}
 
         virtual std::vector<const char*> GetInstanceLayers() const;
         virtual std::vector<const char*> GetInstanceExtensions() const;
         virtual std::vector<const char*> GetDeviceExtensions() const;
 
         vk::Device GetDevice() { return contextPtr->GetDevice(); }
+
+        bool InitImgui(vk::Format depthFormat);
 
         void TransitionImageLayout(
             vk::CommandBuffer       commandBuffer,
@@ -48,6 +55,9 @@ namespace jgw
         std::unique_ptr<VulkanImgui> imguiPtr;
 
     private:
+        bool Initialize();
+        void Render();
+        void Update();
         void SetCallback(GLFWwindow* handle);
 
         int iconified = 0;

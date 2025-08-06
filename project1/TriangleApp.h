@@ -12,8 +12,8 @@ namespace jgw
         TriangleApp(const WindowConfig& config = {});
 
     protected:
-        virtual bool Initialize() override;
-        virtual void Render(vk::CommandBuffer commandBuffer) override;
+        virtual bool OnInit() override;
+        virtual void OnRender(vk::CommandBuffer commandBuffer) override;
         virtual void Cleanup() override;
 
     private:

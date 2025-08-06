@@ -28,8 +28,9 @@ namespace jgw
         ModelApp(const WindowConfig& config = {});
 
     protected:
-        virtual bool Initialize() override;
-        virtual void Render(vk::CommandBuffer commandBuffer) override;
+        virtual bool OnInit() override;
+        virtual void OnRender(vk::CommandBuffer commandBuffer) override;
+        virtual void OnGUI() override;
         virtual void Cleanup() override;
         virtual void OnResize(int width, int height) override;
 
@@ -52,5 +53,7 @@ namespace jgw
         vk::DescriptorPool descriptorPool{};
         vk::DescriptorSet descriptorSet{};
         vk::DescriptorSetLayout descriptorSetLayout{};
+
+        bool showDemo = true;
     };
 }

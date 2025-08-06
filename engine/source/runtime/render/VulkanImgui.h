@@ -30,12 +30,11 @@ namespace jgw
             VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT
         );
 
-        void Update();
+        void BeginFrame();
+        void EndFrame();
         void Render(VkCommandBuffer commandBuffer);
 
     private:
         VkDescriptorPool descriptorPool{};
-
-        bool showDemo = true;
     };
 }

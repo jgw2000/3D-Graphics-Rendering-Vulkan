@@ -12,6 +12,7 @@ namespace jgw
     {
         windowPtr = std::make_unique<Window>(config);
         contextPtr = std::make_unique<VulkanContext>();
+        imguiPtr = std::make_unique<VulkanImgui>();
     }
 
     void BaseApp::Start()
@@ -28,38 +29,13 @@ namespace jgw
             
             if (!iconified && contextPtr->BeginRender())
             {
-                Render(contextPtr->GetCommandBuffer());
+                Render();
                 contextPtr->EndRender();
             }
         }
 
         contextPtr->WaitDeviceIdle();
         Cleanup();
-    }
-
-    bool BaseApp::Initialize()
-    {
-        if (!windowPtr->Initialize())
-            return false;
-
-        GLFWwindow* handle = windowPtr->GetHandle();
-        SetCallback(handle);
-
-        auto instanceLayers = GetInstanceLayers();
-        auto instanceExtensions = GetInstanceExtensions();
-        auto deviceExtensions = GetDeviceExtensions();
-
-        if (!contextPtr->Initialize(handle, instanceLayers, instanceExtensions, deviceExtensions))
-            return false;
-
-        imguiPtr = std::make_unique<VulkanImgui>();
-
-        return true;
-    }
-
-    void BaseApp::Update()
-    {
-        imguiPtr->Update();
     }
 
     void BaseApp::Cleanup()
@@ -98,6 +74,22 @@ namespace jgw
     std::vector<const char*> BaseApp::GetDeviceExtensions() const
     {
         return { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME };
+    }
+
+    bool BaseApp::InitImgui(vk::Format depthFormat)
+    {
+        return imguiPtr->Initialize(
+            windowPtr->GetHandle(),
+            contextPtr->GetInstance(),
+            contextPtr->GetPhysicalDevice(),
+            contextPtr->GetDevice(),
+            contextPtr->GetQueue(),
+            contextPtr->GetQueuFamily(),
+            contextPtr->GetSwapchain()->GetImageCount(),
+            static_cast<VkFormat>(contextPtr->GetSwapchain()->GetFormat()),
+            static_cast<VkFormat>(depthFormat),
+            contextPtr->GetApiVersion()
+        );
     }
 
     void BaseApp::TransitionImageLayout(
@@ -166,6 +158,62 @@ namespace jgw
         stbi_image_free(data);
 
         return texture;
+    }
+
+    bool BaseApp::Initialize()
+    {
+        if (!windowPtr->Initialize())
+            return false;
+
+        GLFWwindow* handle = windowPtr->GetHandle();
+        SetCallback(handle);
+
+        auto instanceLayers = GetInstanceLayers();
+        auto instanceExtensions = GetInstanceExtensions();
+        auto deviceExtensions = GetDeviceExtensions();
+
+        if (!contextPtr->Initialize(handle, instanceLayers, instanceExtensions, deviceExtensions))
+            return false;
+
+        return OnInit();
+    }
+
+    void BaseApp::Render()
+    {
+        auto commandBuffer = contextPtr->GetCommandBuffer();
+
+        TransitionImageLayout(
+            commandBuffer,
+            contextPtr->GetSwapchain()->GetImage(),
+            vk::ImageLayout::eUndefined,
+            vk::ImageLayout::eColorAttachmentOptimal,
+            {},
+            vk::AccessFlagBits::eColorAttachmentWrite,
+            vk::PipelineStageFlagBits::eTopOfPipe,
+            vk::PipelineStageFlagBits::eColorAttachmentOutput
+        );
+
+        OnRender(commandBuffer);
+
+        TransitionImageLayout(
+            commandBuffer,
+            contextPtr->GetSwapchain()->GetImage(),
+            vk::ImageLayout::eColorAttachmentOptimal,
+            vk::ImageLayout::ePresentSrcKHR,
+            vk::AccessFlagBits::eColorAttachmentWrite,
+            {},
+            vk::PipelineStageFlagBits::eColorAttachmentOutput,
+            vk::PipelineStageFlagBits::eBottomOfPipe
+        );
+    }
+
+    void BaseApp::Update()
+    {
+        OnUpdate();
+
+        imguiPtr->BeginFrame();
+        OnGUI();
+        imguiPtr->EndFrame();
     }
 
     void BaseApp::SetCallback(GLFWwindow* handle)
