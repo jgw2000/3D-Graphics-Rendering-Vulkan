@@ -289,11 +289,19 @@ namespace jgw
         });
 
         glfwSetWindowSizeCallback(handle, [](GLFWwindow* window, int width, int height) {
-            if (width <= 0 || height <= 0)
-                return;
-
             BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
-            if (app) app->OnResize(width, height);
+
+            if (width <= 0 || height <= 0)
+            {
+                if (app) app->iconified = true;
+                return;
+            }
+
+            if (app)
+            {
+                app->OnResize(width, height);
+                app->iconified = false;
+            }
         });
 
         glfwSetWindowIconifyCallback(handle, [](GLFWwindow* window, int iconified) {
