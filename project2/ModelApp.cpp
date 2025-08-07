@@ -106,8 +106,9 @@ namespace jgw
 
         const float ratio = extent.width / (float)extent.height;
         const glm::mat4 m = glm::rotate(glm::mat4(1.0), glm::radians(-90.0f), glm::vec3(1, 0, 0));
-        const glm::mat4 v = glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.5f, -1.5f)), (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
-        const glm::mat4 p = glm::perspective(45.0f, ratio, 0.1f, 1000.0f);
+        const glm::mat4 v = glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, -1.5f)), (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 p = glm::perspective(45.0f, ratio, 0.1f, 1000.0f);
+        p[1][1] *= -1;
         const glm::mat4 mvp = p * v * m;
 
         commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4), &mvp);
@@ -143,7 +144,7 @@ namespace jgw
 
     bool ModelApp::LoadModel()
     {
-        const aiScene* scene = aiImportFile("rubber_duck/scene.gltf", aiProcess_Triangulate | aiProcess_MakeLeftHanded);
+        const aiScene* scene = aiImportFile("rubber_duck/scene.gltf", aiProcess_Triangulate);
         if (!scene || !scene->HasMeshes())
         {
             spdlog::error(aiGetErrorString());
