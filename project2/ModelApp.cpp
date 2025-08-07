@@ -15,7 +15,8 @@ namespace jgw
             return false;
         }
 
-        if (!CreateDepthBuffer())
+        depthTexture = CreateDepthTexture(vk::Format::eD32Sfloat);
+        if (!depthTexture)
         {
             spdlog::error("Failed to create depth buffer");
             return false;
@@ -137,8 +138,7 @@ namespace jgw
     {
         BaseApp::OnResize(width, height);
 
-        depthTexture.reset();
-        CreateDepthBuffer();
+        depthTexture = CreateDepthTexture(vk::Format::eD32Sfloat);
     }
 
     bool ModelApp::LoadModel()
@@ -212,33 +212,6 @@ namespace jgw
         };
         sampler = GetDevice().createSampler(samplerCI);
         
-        return true;
-    }
-
-    bool ModelApp::CreateDepthBuffer()
-    {
-        auto extent = contextPtr->GetSwapchain()->GetExtent();
-        const TextureDesc desc{
-            .usageFlags = vk::ImageUsageFlagBits::eDepthStencilAttachment,
-            .format = vk::Format::eD32Sfloat,
-            .extent = {
-                .width = extent.width, .height = extent.height, .depth = 1
-            },
-            .aspectMask = vk::ImageAspectFlagBits::eDepth
-        };
-
-        const VmaAllocationDesc allocDesc{
-            .flags = vma::AllocationCreateFlagBits::eDedicatedMemory,
-            .usage = vma::MemoryUsage::eAutoPreferDevice
-        };
-
-        depthTexture = contextPtr->CreateTexture(desc, allocDesc);
-
-        if (depthTexture == nullptr)
-        {
-            return false;
-        }
-
         return true;
     }
 

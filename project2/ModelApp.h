@@ -35,7 +35,6 @@ namespace jgw
 
     private:
         bool LoadModel();
-        bool CreateDepthBuffer();
         bool CreateDescriptors();
         bool CreatePipeline();
 

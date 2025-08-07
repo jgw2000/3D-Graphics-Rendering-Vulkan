@@ -49,6 +49,7 @@ namespace jgw
             vk::PipelineStageFlags  dstStage
         );
 
+        std::unique_ptr<VulkanTexture> CreateDepthTexture(vk::Format depthFormat);
         std::unique_ptr<VulkanTexture> LoadTexture(const char* filename, bool mipmapped = false);
 
         std::unique_ptr<Window> windowPtr;

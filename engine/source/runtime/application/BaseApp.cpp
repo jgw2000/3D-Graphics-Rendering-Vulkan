@@ -126,6 +126,26 @@ namespace jgw
         commandBuffer.pipelineBarrier(srcStage, dstStage, {}, {}, {}, imageMemoryBarrier);
     }
 
+    std::unique_ptr<VulkanTexture> BaseApp::CreateDepthTexture(vk::Format depthFormat)
+    {
+        auto extent = contextPtr->GetSwapchain()->GetExtent();
+        const TextureDesc desc{
+            .usageFlags = vk::ImageUsageFlagBits::eDepthStencilAttachment,
+            .format = depthFormat,
+            .extent = {
+                .width = extent.width, .height = extent.height, .depth = 1
+            },
+            .aspectMask = vk::ImageAspectFlagBits::eDepth
+        };
+
+        const VmaAllocationDesc allocDesc{
+            .flags = vma::AllocationCreateFlagBits::eDedicatedMemory,
+            .usage = vma::MemoryUsage::eAutoPreferDevice
+        };
+
+        return contextPtr->CreateTexture(desc, allocDesc);
+    }
+
     std::unique_ptr<VulkanTexture> BaseApp::LoadTexture(const char* filename, bool mipmapped)
     {
         int w, h, comp;
