@@ -226,6 +226,10 @@ namespace jgw
 
     void BaseApp::ShowFPS()
     {
+        int curFPS = (int)fpsCounter.GetFPS();
+        if (curFPS <= 0)
+            return;
+
         if (const ImGuiViewport* v = ImGui::GetMainViewport())
         {
             ImGui::SetNextWindowPos(
@@ -246,8 +250,8 @@ namespace jgw
             ImGuiWindowFlags_NoNav |
             ImGuiWindowFlags_NoMove))
         {
-            ImGui::Text("FPS : %i", (int)fpsCounter.GetFPS());
-            ImGui::Text("ms  : %.1f", 1000.0 / fpsCounter.GetFPS());
+            ImGui::Text("FPS : %i", curFPS);
+            ImGui::Text("ms  : %.1f", 1000.0 / curFPS);
         }
         ImGui::End();
     }
