@@ -69,6 +69,8 @@ namespace jgw
 
         commandBuffer.draw(3, 1, 0, 0); // Draw a triangle
 
+        imguiPtr->Render(commandBuffer);
+
         commandBuffer.endRendering();
     }
 

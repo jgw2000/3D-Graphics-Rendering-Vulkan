@@ -20,12 +20,17 @@ namespace jgw
         if (!Initialize())
             return;
 
+        double lastTime = glfwGetTime();
+        double curTime = 0.0;
+
         GLFWwindow* handle = windowPtr->GetHandle();
         while (!glfwWindowShouldClose(handle))
         {
             glfwPollEvents();
 
-            Update();
+            curTime = glfwGetTime();
+            Update(curTime - lastTime);
+            lastTime = curTime;
             
             if (!iconified && contextPtr->BeginRender())
             {
@@ -207,13 +212,44 @@ namespace jgw
         );
     }
 
-    void BaseApp::Update()
+    void BaseApp::Update(double delta)
     {
-        OnUpdate();
+        fpsCounter.Tick(delta);
+
+        OnUpdate(delta);
 
         imguiPtr->BeginFrame();
         OnGUI();
+        ShowFPS();
         imguiPtr->EndFrame();
+    }
+
+    void BaseApp::ShowFPS()
+    {
+        if (const ImGuiViewport* v = ImGui::GetMainViewport())
+        {
+            ImGui::SetNextWindowPos(
+                { v->WorkPos.x + v->WorkSize.x - 15.0f, v->WorkPos.y + 15.0f },
+                ImGuiCond_Always,
+                { 1.0f, 0.0f }
+            );
+        }
+
+        ImGui::SetNextWindowBgAlpha(0.3f);
+        ImGui::SetNextWindowSize(ImVec2(ImGui::CalcTextSize("FPS : _______").x, 0));
+
+        if (ImGui::Begin("##FPS", nullptr,
+            ImGuiWindowFlags_NoDecoration |
+            ImGuiWindowFlags_AlwaysAutoResize |
+            ImGuiWindowFlags_NoSavedSettings |
+            ImGuiWindowFlags_NoFocusOnAppearing |
+            ImGuiWindowFlags_NoNav |
+            ImGuiWindowFlags_NoMove))
+        {
+            ImGui::Text("FPS : %i", (int)fpsCounter.GetFPS());
+            ImGui::Text("ms  : %.1f", 1000.0 / fpsCounter.GetFPS());
+        }
+        ImGui::End();
     }
 
     void BaseApp::SetCallback(GLFWwindow* handle)

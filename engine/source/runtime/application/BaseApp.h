@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "VulkanContext.h"
 #include "VulkanImgui.h"
+#include "FpsCounter.h"
 
 #define IMGUI_IMPL_VULKAN_NO_PROTOTYPES
 #include "imgui.h"
@@ -25,7 +26,7 @@ namespace jgw
         virtual bool OnInit() { return true; }
         virtual void OnRender(vk::CommandBuffer commandBuffer) {}
         virtual void OnGUI() {}
-        virtual void OnUpdate() {}
+        virtual void OnUpdate(double delta) {}
         virtual void OnKey(int key, int scancode, int action, int mods) {}
         virtual void OnResize(int width, int height);
 
@@ -57,9 +58,12 @@ namespace jgw
     private:
         bool Initialize();
         void Render();
-        void Update();
+        void Update(double delta);
+        void ShowFPS();
         void SetCallback(GLFWwindow* handle);
 
         int iconified = 0;
+
+        FpsCounter fpsCounter{};
     };
 }
