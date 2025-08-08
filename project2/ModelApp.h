@@ -29,9 +29,12 @@ namespace jgw
 
     protected:
         virtual bool OnInit() override;
+        virtual void OnUpdate(double delta) override;
         virtual void OnRender(vk::CommandBuffer commandBuffer) override;
         virtual void Cleanup() override;
         virtual void OnResize(int width, int height) override;
+        virtual void OnKey(int key, int scancode, int action, int mods) override;
+        virtual void OnMouse(int button, int action, int mods) override;
 
     private:
         bool LoadModel();

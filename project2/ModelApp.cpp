@@ -40,7 +40,19 @@ namespace jgw
             return false;
         }
 
+        cameraPtr->SetPosition(glm::vec3(0.0f, 0.0f, 3.5f));
+        cameraPtr->SetForward(glm::vec3(0.0f, 0.0f, -1.0f));
+
+        auto extent = contextPtr->GetSwapchain()->GetExtent();
+        const float aspect = extent.width / (float)extent.height;
+        cameraPtr->SetPerspective(45.0f, aspect, 0.1f, 1000.0f);
+
         return true;
+    }
+
+    void ModelApp::OnUpdate(double delta)
+    {
+        cameraPtr->Update(delta);
     }
 
     void ModelApp::OnRender(vk::CommandBuffer commandBuffer)
@@ -105,10 +117,9 @@ namespace jgw
         commandBuffer.setScissor(0, 1, &scissor);
 
         const float ratio = extent.width / (float)extent.height;
-        const glm::mat4 m = glm::rotate(glm::mat4(1.0), glm::radians(-90.0f), glm::vec3(1, 0, 0));
-        const glm::mat4 v = glm::rotate(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.5f, -1.5f)), (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 p = glm::perspective(45.0f, ratio, 0.1f, 1000.0f);
-        p[1][1] *= -1;
+        const glm::mat4 m = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        const glm::mat4 v = cameraPtr->GetView();
+        const glm::mat4 p = cameraPtr->GetProj();
         const glm::mat4 mvp = p * v * m;
 
         commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4), &mvp);
@@ -140,6 +151,23 @@ namespace jgw
         BaseApp::OnResize(width, height);
 
         depthTexture = CreateDepthTexture(vk::Format::eD32Sfloat);
+    }
+
+    void ModelApp::OnKey(int key, int scancode, int action, int mods)
+    {
+        const bool pressed = action != GLFW_RELEASE;
+        if (key == GLFW_KEY_W)
+            cameraPtr->keys.up = pressed;
+        if (key == GLFW_KEY_S)
+            cameraPtr->keys.down = pressed;
+        if (key == GLFW_KEY_A)
+            cameraPtr->keys.left = pressed;
+        if (key == GLFW_KEY_D)
+            cameraPtr->keys.right = pressed;
+    }
+
+    void ModelApp::OnMouse(int button, int action, int mods)
+    {
     }
 
     bool ModelApp::LoadModel()

@@ -36,5 +36,6 @@ namespace jgw
 
     private:
         VkDescriptorPool descriptorPool{};
+        bool initialized = false;
     };
 }

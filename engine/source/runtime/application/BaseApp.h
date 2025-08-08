@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "VulkanContext.h"
 #include "VulkanImgui.h"
+#include "Camera.h"
 #include "FpsCounter.h"
 
 #define IMGUI_IMPL_VULKAN_NO_PROTOTYPES
@@ -28,6 +29,7 @@ namespace jgw
         virtual void OnGUI() {}
         virtual void OnUpdate(double delta) {}
         virtual void OnKey(int key, int scancode, int action, int mods) {}
+        virtual void OnMouse(int button, int action, int modes) {}
         virtual void OnResize(int width, int height);
 
         virtual std::vector<const char*> GetInstanceLayers() const;
@@ -55,6 +57,7 @@ namespace jgw
         std::unique_ptr<Window> windowPtr;
         std::unique_ptr<VulkanContext> contextPtr;
         std::unique_ptr<VulkanImgui> imguiPtr;
+        std::unique_ptr<Camera> cameraPtr;
 
     private:
         bool Initialize();

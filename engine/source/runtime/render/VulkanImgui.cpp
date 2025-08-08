@@ -16,9 +16,12 @@ namespace jgw
 
     VulkanImgui::~VulkanImgui()
     {
-        ImGui_ImplVulkan_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
-        ImGui::DestroyContext();
+        if (initialized)
+        {
+            ImGui_ImplVulkan_Shutdown();
+            ImGui_ImplGlfw_Shutdown();
+            ImGui::DestroyContext();
+        }
 
         vkDestroyDescriptorPool(volkGetLoadedDevice(), descriptorPool, nullptr);
         
@@ -95,7 +98,11 @@ namespace jgw
             }
         };
 
-        return ImGui_ImplVulkan_Init(&init_info);
+        bool result = ImGui_ImplVulkan_Init(&init_info);
+        if (result)
+            initialized = true;
+
+        return result;
     }
 
     void VulkanImgui::BeginFrame()

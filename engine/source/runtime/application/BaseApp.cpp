@@ -13,6 +13,7 @@ namespace jgw
         windowPtr = std::make_unique<Window>(config);
         contextPtr = std::make_unique<VulkanContext>();
         imguiPtr = std::make_unique<VulkanImgui>();
+        cameraPtr = std::make_unique<Camera>();
     }
 
     void BaseApp::Start()
@@ -45,6 +46,7 @@ namespace jgw
 
     void BaseApp::Cleanup()
     {
+        cameraPtr.reset();
         imguiPtr.reset();
         contextPtr.reset();
         windowPtr.reset();
@@ -286,6 +288,11 @@ namespace jgw
 
             if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
                 glfwSetWindowShouldClose(window, GLFW_TRUE);
+        });
+
+        glfwSetMouseButtonCallback(handle, [](GLFWwindow* window, int button, int action, int mods) {
+            BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
+            if (app) app->OnMouse(button, action, mods);
         });
 
         glfwSetWindowSizeCallback(handle, [](GLFWwindow* window, int width, int height) {
