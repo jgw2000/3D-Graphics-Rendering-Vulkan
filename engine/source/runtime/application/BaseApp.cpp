@@ -292,7 +292,12 @@ namespace jgw
 
         glfwSetMouseButtonCallback(handle, [](GLFWwindow* window, int button, int action, int mods) {
             BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
-            if (app) app->OnMouse(button, action, mods);
+            if (app)
+            {
+                app->OnMouse(button, action, mods);
+                if (button == GLFW_MOUSE_BUTTON_LEFT) app->mouseState.pressedLeft = action == GLFW_PRESS;
+                if (button == GLFW_MOUSE_BUTTON_RIGHT) app->mouseState.pressedRight = action == GLFW_PRESS;
+            }
         });
 
         glfwSetWindowSizeCallback(handle, [](GLFWwindow* window, int width, int height) {
@@ -308,6 +313,17 @@ namespace jgw
             {
                 app->OnResize(width, height);
                 app->iconified = false;
+            }
+        });
+
+        glfwSetCursorPosCallback(handle, [](GLFWwindow* window, double x, double y) {
+            int width, height;
+            glfwGetFramebufferSize(window, &width, &height);
+            BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
+            if (app)
+            {
+                app->mouseState.pos.x = static_cast<float>(x / width);
+                app->mouseState.pos.y = 1.0f - static_cast<float>(y / height);
             }
         });
 

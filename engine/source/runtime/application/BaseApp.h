@@ -59,6 +59,13 @@ namespace jgw
         std::unique_ptr<VulkanImgui> imguiPtr;
         std::unique_ptr<Camera> cameraPtr;
 
+        struct MouseState
+        {
+            glm::vec2 pos = glm::vec2(0.0f);
+            bool pressedLeft = false;
+            bool pressedRight = false;
+        } mouseState;
+
     private:
         bool Initialize();
         void Render();
