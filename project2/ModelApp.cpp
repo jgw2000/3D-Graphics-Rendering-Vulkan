@@ -4,7 +4,11 @@ namespace jgw
 {
     ModelApp::ModelApp(const WindowConfig& config) : BaseApp(config)
     {
-
+        camera = std::make_unique<FirstPersonCamera>(
+            glm::vec3(0.0f, 3.0f, 3.5f),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f)
+        );
     }
 
     bool ModelApp::OnInit()
@@ -40,19 +44,14 @@ namespace jgw
             return false;
         }
 
-        cameraPtr->SetPosition(glm::vec3(0.0f, 0.0f, 3.5f));
-        cameraPtr->SetForward(glm::vec3(0.0f, 0.0f, -1.0f));
-
-        auto extent = contextPtr->GetSwapchain()->GetExtent();
-        const float aspect = extent.width / (float)extent.height;
-        cameraPtr->SetPerspective(45.0f, aspect, 0.1f, 1000.0f);
+        SetupCamera();
 
         return true;
     }
 
     void ModelApp::OnUpdate(double delta)
     {
-        cameraPtr->Update(delta);
+        camera->Update(delta, mouseState.pos);
     }
 
     void ModelApp::OnRender(vk::CommandBuffer commandBuffer)
@@ -118,8 +117,8 @@ namespace jgw
 
         const float ratio = extent.width / (float)extent.height;
         const glm::mat4 m = glm::rotate(glm::mat4(1.0f), -90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        const glm::mat4 v = cameraPtr->GetView();
-        const glm::mat4 p = cameraPtr->GetProj();
+        const glm::mat4 v = camera->GetViewMatrix();
+        const glm::mat4 p = camera->GetProjMatrix();
         const glm::mat4 mvp = p * v * m;
 
         commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4), &mvp);
@@ -137,6 +136,7 @@ namespace jgw
         device.destroyDescriptorPool(descriptorPool);
         device.destroySampler(sampler);
 
+        camera.reset();
         vertexBuffer.reset();
         indexBuffer.reset();
         pipeline.reset();
@@ -151,23 +151,26 @@ namespace jgw
         BaseApp::OnResize(width, height);
 
         depthTexture = CreateDepthTexture(vk::Format::eD32Sfloat);
+        SetupCamera();
     }
 
     void ModelApp::OnKey(int key, int scancode, int action, int mods)
     {
         const bool pressed = action != GLFW_RELEASE;
         if (key == GLFW_KEY_W)
-            cameraPtr->keys.up = pressed;
+            camera->keyStates.up = pressed;
         if (key == GLFW_KEY_S)
-            cameraPtr->keys.down = pressed;
+            camera->keyStates.down = pressed;
         if (key == GLFW_KEY_A)
-            cameraPtr->keys.left = pressed;
+            camera->keyStates.left = pressed;
         if (key == GLFW_KEY_D)
-            cameraPtr->keys.right = pressed;
+            camera->keyStates.right = pressed;
     }
 
     void ModelApp::OnMouse(int button, int action, int mods)
     {
+        camera->mouseStates.left = mouseState.pressedLeft;
+        camera->mouseStates.right = mouseState.pressedRight;
     }
 
     bool ModelApp::LoadModel()
@@ -342,5 +345,12 @@ namespace jgw
         }
 
         return true;
+    }
+
+    void ModelApp::SetupCamera()
+    {
+        auto extent = contextPtr->GetSwapchain()->GetExtent();
+        const float aspect = extent.width / (float)extent.height;
+        camera->SetPerspective(45.0f, aspect, 0.1f, 1000.0f);
     }
 }

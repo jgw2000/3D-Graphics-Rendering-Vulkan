@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BaseApp.h"
+#include "Camera.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -40,6 +41,7 @@ namespace jgw
         bool LoadModel();
         bool CreateDescriptors();
         bool CreatePipeline();
+        void SetupCamera();
 
         std::vector<VertexData> vertices;
         std::vector<uint32_t> indices;
@@ -54,5 +56,7 @@ namespace jgw
         vk::DescriptorPool descriptorPool{};
         vk::DescriptorSet descriptorSet{};
         vk::DescriptorSetLayout descriptorSetLayout{};
+
+        std::unique_ptr<Camera> camera;
     };
 }

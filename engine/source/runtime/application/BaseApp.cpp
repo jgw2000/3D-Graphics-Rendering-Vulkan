@@ -13,7 +13,6 @@ namespace jgw
         windowPtr = std::make_unique<Window>(config);
         contextPtr = std::make_unique<VulkanContext>();
         imguiPtr = std::make_unique<VulkanImgui>();
-        cameraPtr = std::make_unique<Camera>();
     }
 
     void BaseApp::Start()
@@ -46,7 +45,6 @@ namespace jgw
 
     void BaseApp::Cleanup()
     {
-        cameraPtr.reset();
         imguiPtr.reset();
         contextPtr.reset();
         windowPtr.reset();
@@ -294,9 +292,9 @@ namespace jgw
             BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
             if (app)
             {
-                app->OnMouse(button, action, mods);
                 if (button == GLFW_MOUSE_BUTTON_LEFT) app->mouseState.pressedLeft = action == GLFW_PRESS;
                 if (button == GLFW_MOUSE_BUTTON_RIGHT) app->mouseState.pressedRight = action == GLFW_PRESS;
+                app->OnMouse(button, action, mods);
             }
         });
 

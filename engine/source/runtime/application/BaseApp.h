@@ -3,13 +3,18 @@
 #include "Window.h"
 #include "VulkanContext.h"
 #include "VulkanImgui.h"
-#include "Camera.h"
 #include "FpsCounter.h"
 
 #define IMGUI_IMPL_VULKAN_NO_PROTOTYPES
 #include "imgui.h"
 #include "bindings/imgui_impl_glfw.h"
 #include "bindings/imgui_impl_vulkan.h"
+
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace jgw
 {
@@ -57,7 +62,6 @@ namespace jgw
         std::unique_ptr<Window> windowPtr;
         std::unique_ptr<VulkanContext> contextPtr;
         std::unique_ptr<VulkanImgui> imguiPtr;
-        std::unique_ptr<Camera> cameraPtr;
 
         struct MouseState
         {
