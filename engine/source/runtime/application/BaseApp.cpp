@@ -55,6 +55,8 @@ namespace jgw
             cameraPtr->keyState.left = pressed;
         if (key == GLFW_KEY_D)
             cameraPtr->keyState.right = pressed;
+        if (key == GLFW_KEY_F1 && !pressed)
+            showUI = !showUI;
     }
 
     void BaseApp::OnMouse(int button, int action, int modes)
@@ -272,8 +274,14 @@ namespace jgw
         OnUpdate(delta);
 
         imguiPtr->BeginFrame();
-        OnGUI();
-        ShowFPS();
+
+        if (showUI)
+        {
+            
+            OnGUI();
+            ShowFPS();
+        }
+
         imguiPtr->EndFrame();
     }
 

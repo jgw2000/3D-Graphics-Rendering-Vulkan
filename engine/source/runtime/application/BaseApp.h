@@ -76,6 +76,7 @@ namespace jgw
         void SetCallback(GLFWwindow* handle);
 
         int iconified = 0;
+        bool showUI = true;
 
         FpsCounter fpsCounter{};
     };
