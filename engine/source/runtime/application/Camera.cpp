@@ -2,57 +2,68 @@
 
 namespace jgw
 {
+    void Camera::Update(double delta)
+    {
+        if (IsMoving())
+        {
+            glm::vec3 camFront;
+            camFront.x = -cos(glm::radians(cameraRotation.x)) * sin(glm::radians(cameraRotation.y));
+            camFront.y = sin(glm::radians(cameraRotation.x));
+            camFront.z = cos(glm::radians(cameraRotation.x)) * cos(glm::radians(cameraRotation.y));
+            
+            float moveSpeed = delta * movementSpeed;
+
+            if (keyState.up)
+                cameraPosition -= camFront * moveSpeed;
+            if (keyState.down)
+                cameraPosition += camFront * moveSpeed;
+            if (keyState.left)
+                cameraPosition += glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f))) * moveSpeed;
+            if (keyState.right)
+                cameraPosition -= glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f))) * moveSpeed;
+        }
+
+        UpdateViewMatrix();
+    }
+
+    void Camera::SetPosition(glm::vec3 position)
+    {
+        this->cameraPosition = position;
+        UpdateViewMatrix();
+    }
+
+    void Camera::SetRotation(glm::vec3 rotation)
+    {
+        this->cameraRotation = rotation;
+        UpdateViewMatrix();
+    }
+
     void Camera::SetPerspective(float fov, float aspect, float znear, float zfar)
     {
         projMatrix = glm::perspective(fov, aspect, znear, zfar);
         projMatrix[1][1] *= -1.0f;
     }
 
-    FirstPersonCamera::FirstPersonCamera(const glm::vec3& pos, const glm::vec3& target, const glm::vec3& up)
+    void Camera::Translate(glm::vec3 delta)
     {
-        cameraPosition = pos;
-        cameraOrientation = glm::lookAt(pos, target, up);
-        cameraOrientation = glm::normalize(cameraOrientation);
-        cameraUp = up;
+        this->cameraPosition += delta;
+        UpdateViewMatrix();
     }
 
-    void FirstPersonCamera::Update(double delta, const glm::vec2& newMousePos)
+    void Camera::Rotate(glm::vec3 delta)
     {
-        if (mouseStates.right)
-        {
-            const glm::vec2 mouseDelta = newMousePos - mousePosition;
-            const glm::quat mouseDeltaQuat = glm::quat(glm::vec3(-mouseSpeed * mouseDelta.y, mouseSpeed * mouseDelta.x, 0.0f));
-            cameraOrientation = mouseDeltaQuat * cameraOrientation;
-            cameraOrientation = glm::normalize(cameraOrientation);
-        }
-
-        mousePosition = newMousePos;
-
-        if (IsMoving())
-        {
-            const glm::mat4 v = glm::mat4_cast(cameraOrientation);
-            const glm::vec3 right = glm::vec3(v[0][0], v[1][0], v[2][0]);   // +x
-            const glm::vec3 up = glm::vec3(v[0][1], v[1][1], v[2][1]);      // +y
-            const glm::vec3 forward = glm::cross(up, right);                // -z
-
-            glm::vec3 dir = glm::vec3(0.0f);
-            if (keyStates.up)
-                dir += forward;
-            if (keyStates.down)
-                dir -= forward;
-            if (keyStates.left)
-                dir -= right;
-            if (keyStates.right)
-                dir += right;
-
-            cameraPosition += glm::normalize(dir) * (float)delta * moveSpeed;
-        }
+        this->cameraRotation += delta;
+        UpdateViewMatrix();
     }
 
-    glm::mat4 FirstPersonCamera::GetViewMatrix() const
+    void Camera::UpdateViewMatrix()
     {
-        const glm::mat4 t = glm::translate(glm::mat4(1.0f), -cameraPosition);
-        const glm::mat4 r = glm::mat4_cast(cameraOrientation);
-        return r * t;
+        glm::mat4 rotM = glm::mat4(1.0f);
+        rotM = glm::rotate(rotM, glm::radians(cameraRotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        rotM = glm::rotate(rotM, glm::radians(cameraRotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        rotM = glm::rotate(rotM, glm::radians(cameraRotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        glm::mat4 transM = glm::translate(glm::mat4(1.0f), -cameraPosition);
+        viewMatrix = rotM * transM;
     }
 }

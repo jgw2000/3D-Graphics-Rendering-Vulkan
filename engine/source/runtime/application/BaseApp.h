@@ -3,18 +3,13 @@
 #include "Window.h"
 #include "VulkanContext.h"
 #include "VulkanImgui.h"
+#include "Camera.h"
 #include "FpsCounter.h"
 
 #define IMGUI_IMPL_VULKAN_NO_PROTOTYPES
 #include "imgui.h"
 #include "bindings/imgui_impl_glfw.h"
 #include "bindings/imgui_impl_vulkan.h"
-
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace jgw
 {
@@ -28,13 +23,14 @@ namespace jgw
         void Start();
 
     protected:
-        virtual void Cleanup();
         virtual bool OnInit() { return true; }
         virtual void OnRender(vk::CommandBuffer commandBuffer) {}
+        virtual void OnCleanup() {}
         virtual void OnGUI() {}
         virtual void OnUpdate(double delta) {}
-        virtual void OnKey(int key, int scancode, int action, int mods) {}
-        virtual void OnMouse(int button, int action, int modes) {}
+        virtual void OnKey(int key, int scancode, int action, int mods);
+        virtual void OnMouse(int button, int action, int modes);
+        virtual void OnMouseMove(float x, float y);
         virtual void OnResize(int width, int height);
 
         virtual std::vector<const char*> GetInstanceLayers() const;
@@ -62,6 +58,7 @@ namespace jgw
         std::unique_ptr<Window> windowPtr;
         std::unique_ptr<VulkanContext> contextPtr;
         std::unique_ptr<VulkanImgui> imguiPtr;
+        std::unique_ptr<Camera> cameraPtr;
 
         struct MouseState
         {
@@ -74,6 +71,7 @@ namespace jgw
         bool Initialize();
         void Render();
         void Update(double delta);
+        void Cleanup();
         void ShowFPS();
         void SetCallback(GLFWwindow* handle);
 

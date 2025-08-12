@@ -13,6 +13,7 @@ namespace jgw
         windowPtr = std::make_unique<Window>(config);
         contextPtr = std::make_unique<VulkanContext>();
         imguiPtr = std::make_unique<VulkanImgui>();
+        cameraPtr = std::make_unique<Camera>();
     }
 
     void BaseApp::Start()
@@ -43,11 +44,43 @@ namespace jgw
         Cleanup();
     }
 
-    void BaseApp::Cleanup()
+    void BaseApp::OnKey(int key, int scancode, int action, int mods)
     {
-        imguiPtr.reset();
-        contextPtr.reset();
-        windowPtr.reset();
+        const bool pressed = action != GLFW_RELEASE;
+        if (key == GLFW_KEY_W)
+            cameraPtr->keyState.up = pressed;
+        if (key == GLFW_KEY_S)
+            cameraPtr->keyState.down = pressed;
+        if (key == GLFW_KEY_A)
+            cameraPtr->keyState.left = pressed;
+        if (key == GLFW_KEY_D)
+            cameraPtr->keyState.right = pressed;
+    }
+
+    void BaseApp::OnMouse(int button, int action, int modes)
+    {
+        if (button == GLFW_MOUSE_BUTTON_LEFT)
+            mouseState.pressedLeft = action == GLFW_PRESS;
+        if (button == GLFW_MOUSE_BUTTON_RIGHT)
+            mouseState.pressedRight = action == GLFW_PRESS;
+    }
+
+    void BaseApp::OnMouseMove(float x, float y)
+    {
+        int width, height;
+        glfwGetFramebufferSize(windowPtr->GetHandle(), &width, &height);
+
+        float nx = static_cast<float>(x / width);
+        float ny = static_cast<float>(y / height);
+
+        if (mouseState.pressedRight)
+        {
+            float dx = nx - mouseState.pos.x;
+            float dy = ny - mouseState.pos.y;
+            cameraPtr->Rotate(glm::vec3(dy * cameraPtr->RotationSpeed(), dx * cameraPtr->RotationSpeed(), 0.0f));
+        }
+
+        mouseState.pos = glm::vec2(nx, ny);
     }
 
     void BaseApp::OnResize(int width, int height)
@@ -244,6 +277,16 @@ namespace jgw
         imguiPtr->EndFrame();
     }
 
+    void BaseApp::Cleanup()
+    {
+        OnCleanup();
+
+        cameraPtr.reset();
+        imguiPtr.reset();
+        contextPtr.reset();
+        windowPtr.reset();
+    }
+
     void BaseApp::ShowFPS()
     {
         int curFPS = (int)fpsCounter.GetFPS();
@@ -292,8 +335,6 @@ namespace jgw
             BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
             if (app)
             {
-                if (button == GLFW_MOUSE_BUTTON_LEFT) app->mouseState.pressedLeft = action == GLFW_PRESS;
-                if (button == GLFW_MOUSE_BUTTON_RIGHT) app->mouseState.pressedRight = action == GLFW_PRESS;
                 app->OnMouse(button, action, mods);
             }
         });
@@ -315,13 +356,10 @@ namespace jgw
         });
 
         glfwSetCursorPosCallback(handle, [](GLFWwindow* window, double x, double y) {
-            int width, height;
-            glfwGetFramebufferSize(window, &width, &height);
             BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
             if (app)
             {
-                app->mouseState.pos.x = static_cast<float>(x / width);
-                app->mouseState.pos.y = 1.0f - static_cast<float>(y / height);
+                app->OnMouseMove(x, y);
             }
         });
 

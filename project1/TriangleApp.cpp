@@ -74,10 +74,8 @@ namespace jgw
         commandBuffer.endRendering();
     }
 
-    void TriangleApp::Cleanup()
+    void TriangleApp::OnCleanup()
     {
         pipeline.reset();
-
-        BaseApp::Cleanup();
     }
 }

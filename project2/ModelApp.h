@@ -1,12 +1,6 @@
 #pragma once
 
 #include "BaseApp.h"
-#include "Camera.h"
-
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/ext.hpp>
 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -32,10 +26,8 @@ namespace jgw
         virtual bool OnInit() override;
         virtual void OnUpdate(double delta) override;
         virtual void OnRender(vk::CommandBuffer commandBuffer) override;
-        virtual void Cleanup() override;
+        virtual void OnCleanup() override;
         virtual void OnResize(int width, int height) override;
-        virtual void OnKey(int key, int scancode, int action, int mods) override;
-        virtual void OnMouse(int button, int action, int mods) override;
 
     private:
         bool LoadModel();
@@ -56,7 +48,5 @@ namespace jgw
         vk::DescriptorPool descriptorPool{};
         vk::DescriptorSet descriptorSet{};
         vk::DescriptorSetLayout descriptorSetLayout{};
-
-        std::unique_ptr<Camera> camera;
     };
 }

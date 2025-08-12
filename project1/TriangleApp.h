@@ -14,7 +14,7 @@ namespace jgw
     protected:
         virtual bool OnInit() override;
         virtual void OnRender(vk::CommandBuffer commandBuffer) override;
-        virtual void Cleanup() override;
+        virtual void OnCleanup() override;
 
     private:
         std::unique_ptr<VulkanPipeline> pipeline;

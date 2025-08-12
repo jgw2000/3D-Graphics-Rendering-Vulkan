@@ -14,13 +14,19 @@ namespace jgw
     class Camera
     {
     public:
-        virtual void Update(double delta, const glm::vec2& newMousePos) = 0;
-        virtual glm::mat4 GetViewMatrix() const = 0;
+        void Update(double delta);
 
+        void SetPosition(glm::vec3 position);
+        void SetRotation(glm::vec3 rotation);
         void SetPerspective(float fov, float aspect, float znear, float zfar);
+        
+        void Translate(glm::vec3 delta);
+        void Rotate(glm::vec3 delta);
 
         inline glm::vec3 GetPosition() const { return cameraPosition; }
+        inline glm::mat4 GetViewMatrix() const { return viewMatrix; }
         inline glm::mat4 GetProjMatrix() const { return projMatrix; }
+        inline float RotationSpeed() const { return rotationSpeed; }
 
         struct
         {
@@ -28,41 +34,23 @@ namespace jgw
             bool right = false;
             bool up = false;
             bool down = false;
-        } keyStates;
-
-        struct
-        {
-            bool left = false;
-            bool right = false;
-        } mouseStates;
+        } keyState;
 
     protected:
-        glm::vec3 cameraPosition = glm::vec3(0.0f);
-        glm::quat cameraOrientation = glm::quat(glm::vec3(0.0f));
-        glm::vec3 cameraUp = glm::vec3(0.0f);
+        void UpdateViewMatrix();
 
-        glm::vec2 mousePosition = glm::vec2(0.0f);
-        float moveSpeed = 1.0f;
-        float mouseSpeed = 4.0f;
-
-        glm::mat4 projMatrix = glm::mat4(1.0f);
-    };
-
-    class FirstPersonCamera final : public Camera
-    {
-    public:
-        CLASS_COPY_MOVE_DELETE(FirstPersonCamera)
-
-        FirstPersonCamera() = default;
-        FirstPersonCamera(const glm::vec3& pos, const glm::vec3& target, const glm::vec3& up);
-
-        void Update(double delta, const glm::vec2& mousePos) override;
-        glm::mat4 GetViewMatrix() const override;
-
-    private:
         inline bool IsMoving() const
         {
-            return keyStates.left || keyStates.right || keyStates.up || keyStates.down;
+            return keyState.left || keyState.right || keyState.up || keyState.down;
         }
+
+        glm::vec3 cameraPosition = glm::vec3();
+        glm::vec3 cameraRotation = glm::vec3();
+
+        float movementSpeed = 1.0f;
+        float rotationSpeed = 90.0f;
+
+        glm::mat4 viewMatrix = glm::mat4(1.0f);
+        glm::mat4 projMatrix = glm::mat4(1.0f);
     };
 }
