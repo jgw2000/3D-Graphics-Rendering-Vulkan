@@ -12,8 +12,6 @@ namespace jgw
         PipelineBuilder() = default;
 
         virtual std::vector<vk::PipelineShaderStageCreateInfo> BuildShaderStages(const vk::Device& device);
-        virtual vk::PipelineShaderStageCreateInfo BuildVertexShaderStage(const vk::Device& device);
-        virtual vk::PipelineShaderStageCreateInfo BuildFragmentShaderStage(const vk::Device& device);
         virtual vk::PipelineVertexInputStateCreateInfo BuildVertexInputState();
         virtual vk::PipelineInputAssemblyStateCreateInfo BuildInputAssemblyState();
         virtual vk::PipelineViewportStateCreateInfo BuildViewportState();
@@ -23,11 +21,11 @@ namespace jgw
         virtual vk::PipelineColorBlendStateCreateInfo BuildColorBlendState();
         virtual vk::PipelineDynamicStateCreateInfo BuildDynamicState();
         virtual vk::PipelineLayout BuildLayout(const vk::Device& device);
-        virtual vk::PipelineRenderingCreateInfo BuildRendering();
 
-        void SetVertexShaderFile(std::string filename);
-        void SetFragmentShaderFile(std::string filename);
-
+        void AddShader(vk::ShaderStageFlagBits flag, std::string filename)
+        {
+            shaderFiles.emplace(flag, filename);
+        }
         void SetVertexBindingDescriptions(std::vector<vk::VertexInputBindingDescription>& descriptions)
         {
             vertexBindingDescriptions = descriptions;
@@ -44,23 +42,9 @@ namespace jgw
         {
             pushConstantRanges = ranges;
         }
-        void SetColorFormats(std::vector<vk::Format>& formats)
-        {
-            colorFormats = formats;
-        }
-        void SetDepthFormat(vk::Format format)
-        {
-            depthFormat = format;
-        }
-
-    protected:
-        bool hasVertexShader = true;
-        bool hasFragmentShader = true;
-
-        std::string vertexShaderFile;
-        std::string fragmentShaderFile;
 
     private:
+        std::unordered_map<vk::ShaderStageFlagBits, std::string> shaderFiles;
         vk::ShaderModule LoadShader(const char* filename, const vk::Device& device);
 
         std::vector<vk::VertexInputBindingDescription> vertexBindingDescriptions;
@@ -69,7 +53,5 @@ namespace jgw
         std::vector<vk::DynamicState> dynamicStates;
         std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;
         std::vector<vk::PushConstantRange> pushConstantRanges;
-        std::vector<vk::Format> colorFormats;
-        vk::Format depthFormat = vk::Format::eUndefined;
     };
 }

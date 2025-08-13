@@ -14,6 +14,7 @@ namespace jgw
         contextPtr = std::make_unique<VulkanContext>();
         imguiPtr = std::make_unique<VulkanImgui>();
         cameraPtr = std::make_unique<Camera>();
+        canvasPtr = std::make_unique<LineCanvas3D>();
     }
 
     void BaseApp::Start()
@@ -161,26 +162,6 @@ namespace jgw
         commandBuffer.pipelineBarrier(srcStage, dstStage, {}, {}, {}, imageMemoryBarrier);
     }
 
-    std::unique_ptr<VulkanTexture> BaseApp::CreateDepthTexture(vk::Format depthFormat)
-    {
-        auto extent = contextPtr->GetSwapchain()->GetExtent();
-        const TextureDesc desc{
-            .usageFlags = vk::ImageUsageFlagBits::eDepthStencilAttachment,
-            .format = depthFormat,
-            .extent = {
-                .width = extent.width, .height = extent.height, .depth = 1
-            },
-            .aspectMask = vk::ImageAspectFlagBits::eDepth
-        };
-
-        const VmaAllocationDesc allocDesc{
-            .flags = vma::AllocationCreateFlagBits::eDedicatedMemory,
-            .usage = vma::MemoryUsage::eAutoPreferDevice
-        };
-
-        return contextPtr->CreateTexture(desc, allocDesc);
-    }
-
     std::unique_ptr<VulkanTexture> BaseApp::LoadTexture(const char* filename, bool mipmapped)
     {
         int w, h, comp;
@@ -235,6 +216,9 @@ namespace jgw
         if (!contextPtr->Initialize(handle, instanceLayers, instanceExtensions, deviceExtensions))
             return false;
 
+        if (!canvasPtr->Initialize(*contextPtr))
+            return false;
+
         return OnInit();
     }
 
@@ -272,6 +256,7 @@ namespace jgw
         fpsCounter.Tick(delta);
 
         OnUpdate(delta);
+        OnGizmos();
 
         imguiPtr->BeginFrame();
 
@@ -291,6 +276,7 @@ namespace jgw
 
         cameraPtr.reset();
         imguiPtr.reset();
+        canvasPtr.reset();
         contextPtr.reset();
         windowPtr.reset();
     }

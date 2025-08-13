@@ -7,31 +7,16 @@ namespace jgw
     std::vector<vk::PipelineShaderStageCreateInfo> PipelineBuilder::BuildShaderStages(const vk::Device& device)
     {
         std::vector<vk::PipelineShaderStageCreateInfo> shaderStages;
-        if (hasVertexShader) shaderStages.push_back(BuildVertexShaderStage(device));
-        if (hasFragmentShader) shaderStages.push_back(BuildFragmentShaderStage(device));
+        for (const auto& it : shaderFiles)
+        {
+            vk::PipelineShaderStageCreateInfo shaderStageCI{
+                .stage = it.first,
+                .module = LoadShader(it.second.c_str(), device),
+                .pName = "main"
+            };
+            shaderStages.emplace_back(shaderStageCI);
+        }
         return shaderStages;
-    }
-
-    vk::PipelineShaderStageCreateInfo PipelineBuilder::BuildVertexShaderStage(const vk::Device& device)
-    {
-        vk::PipelineShaderStageCreateInfo shaderStageCI{
-            .stage = vk::ShaderStageFlagBits::eVertex,
-            .module = LoadShader(vertexShaderFile.c_str(), device),
-            .pName = "main"
-        };
-
-        return shaderStageCI;
-    }
-
-    vk::PipelineShaderStageCreateInfo PipelineBuilder::BuildFragmentShaderStage(const vk::Device& device)
-    {
-        vk::PipelineShaderStageCreateInfo shaderStageCI{
-            .stage = vk::ShaderStageFlagBits::eFragment,
-            .module = LoadShader(fragmentShaderFile.c_str(), device),
-            .pName = "main"
-        };
-
-        return shaderStageCI;
     }
 
     vk::PipelineVertexInputStateCreateInfo PipelineBuilder::BuildVertexInputState()
@@ -157,29 +142,6 @@ namespace jgw
         };
 
         return device.createPipelineLayout(pipelineLayoutCI);
-    }
-
-    vk::PipelineRenderingCreateInfo PipelineBuilder::BuildRendering()
-    {
-        vk::PipelineRenderingCreateInfo renderingCI{
-            .colorAttachmentCount = static_cast<uint32_t>(colorFormats.size()),
-            .pColorAttachmentFormats = colorFormats.data(),
-            .depthAttachmentFormat = depthFormat
-        };
-
-        return renderingCI;
-    }
-
-    void PipelineBuilder::SetVertexShaderFile(std::string filename)
-    {
-        vertexShaderFile = filename;
-        hasVertexShader = true;
-    }
-
-    void PipelineBuilder::SetFragmentShaderFile(std::string filename)
-    {
-        fragmentShaderFile = filename;
-        hasFragmentShader = true;
     }
 
     vk::ShaderModule PipelineBuilder::LoadShader(const char* filename, const vk::Device& device)

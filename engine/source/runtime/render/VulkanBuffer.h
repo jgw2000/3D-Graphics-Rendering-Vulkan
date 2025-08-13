@@ -21,7 +21,11 @@ namespace jgw
 
         ~VulkanBuffer();
 
+        void Map();
+        void CopyFromHost(void* data, vk::DeviceSize size);
+
         vk::Buffer Handle() { return buffer; }
+        vk::DeviceSize TotalSize() { return size; }
 
     private:
         vk::DeviceSize size;

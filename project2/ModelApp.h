@@ -28,6 +28,7 @@ namespace jgw
         virtual void OnRender(vk::CommandBuffer commandBuffer) override;
         virtual void OnCleanup() override;
         virtual void OnResize(int width, int height) override;
+        virtual void OnGizmos() override;
 
     private:
         bool LoadModel();
@@ -41,7 +42,6 @@ namespace jgw
         std::unique_ptr<VulkanBuffer> vertexBuffer;
         std::unique_ptr<VulkanBuffer> indexBuffer;
         std::unique_ptr<VulkanPipeline> pipeline;
-        std::unique_ptr<VulkanTexture> depthTexture;
         std::unique_ptr<VulkanTexture> modelTexture;
 
         vk::Sampler sampler{};

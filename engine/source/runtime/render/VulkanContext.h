@@ -43,6 +43,7 @@ namespace jgw
         vk::Queue GetQueue() const { return graphicsQueue; }
         vk::CommandBuffer GetCommandBuffer() const { return commandBuffers[currentFrame]; }
         VulkanSwapchain* GetSwapchain() const { return swapchainPtr.get(); }
+        VulkanTexture* GetDepthTexture() const { return depthBuffer.get(); }
 
         std::unique_ptr<VulkanPipeline> CreateGraphicsPipeline(PipelineBuilder& pd);
 
@@ -54,6 +55,7 @@ namespace jgw
         );
 
         std::unique_ptr<VulkanTexture> CreateTexture(const TextureDesc& desc, const VmaAllocationDesc& allocDesc = {});
+        std::unique_ptr<VulkanTexture> CreateDepthTexture(vk::Format depthFormat = vk::Format::eD32Sfloat);
 
         void UploadBuffer(const void* data, VulkanBuffer* srcBuffer, VulkanBuffer* dstBuffer);
         void UploadTexture(const void* data, VulkanBuffer* srcBuffer, VulkanTexture* dstTexture);
@@ -73,6 +75,7 @@ namespace jgw
         vk::Queue graphicsQueue{};
         vk::CommandPool commandPool{};
         std::unique_ptr<VulkanSwapchain> swapchainPtr;
+        std::unique_ptr<VulkanTexture> depthBuffer;
 
         std::vector<vk::CommandBuffer> commandBuffers;
         std::vector<vk::Fence> fences;

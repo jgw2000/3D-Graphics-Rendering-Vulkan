@@ -9,12 +9,9 @@ namespace jgw
 
     bool TriangleApp::OnInit()
     {
-        std::vector<vk::Format> colorFormats = { contextPtr->GetSwapchain()->GetFormat() };
-
         PipelineBuilder pd;
-        pd.SetColorFormats(colorFormats);
-        pd.SetVertexShaderFile("shaders/triangle.vert.spv");
-        pd.SetFragmentShaderFile("shaders/triangle.frag.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eVertex, "shaders/triangle.vert.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eFragment, "shaders/triangle.frag.spv");
         pipeline = contextPtr->CreateGraphicsPipeline(pd);
 
         if (pipeline == nullptr)

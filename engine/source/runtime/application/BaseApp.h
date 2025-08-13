@@ -5,6 +5,7 @@
 #include "VulkanImgui.h"
 #include "Camera.h"
 #include "FpsCounter.h"
+#include "LineCanvas.h"
 
 #define IMGUI_IMPL_VULKAN_NO_PROTOTYPES
 #include "imgui.h"
@@ -27,6 +28,7 @@ namespace jgw
         virtual void OnRender(vk::CommandBuffer commandBuffer) {}
         virtual void OnCleanup() {}
         virtual void OnGUI() {}
+        virtual void OnGizmos() {};
         virtual void OnUpdate(double delta) {}
         virtual void OnKey(int key, int scancode, int action, int mods);
         virtual void OnMouse(int button, int action, int modes);
@@ -52,13 +54,13 @@ namespace jgw
             vk::PipelineStageFlags  dstStage
         );
 
-        std::unique_ptr<VulkanTexture> CreateDepthTexture(vk::Format depthFormat);
         std::unique_ptr<VulkanTexture> LoadTexture(const char* filename, bool mipmapped = false);
 
         std::unique_ptr<Window> windowPtr;
         std::unique_ptr<VulkanContext> contextPtr;
         std::unique_ptr<VulkanImgui> imguiPtr;
         std::unique_ptr<Camera> cameraPtr;
+        std::unique_ptr<LineCanvas3D> canvasPtr;
 
         struct MouseState
         {

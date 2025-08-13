@@ -14,13 +14,6 @@ namespace jgw
             return false;
         }
 
-        depthTexture = CreateDepthTexture(vk::Format::eD32Sfloat);
-        if (!depthTexture)
-        {
-            spdlog::error("Failed to create depth buffer");
-            return false;
-        }
-
         if (!CreateDescriptors())
         {
             spdlog::error("Failed to create descriptors");
@@ -68,7 +61,7 @@ namespace jgw
         };
 
         vk::RenderingAttachmentInfo depthAttachment{
-            .imageView = depthTexture->GetView(),
+            .imageView = contextPtr->GetDepthTexture()->GetView(),
             .imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
             .loadOp = vk::AttachmentLoadOp::eClear,
             .storeOp = vk::AttachmentStoreOp::eStore,
@@ -134,7 +127,6 @@ namespace jgw
         vertexBuffer.reset();
         indexBuffer.reset();
         pipeline.reset();
-        depthTexture.reset();
         modelTexture.reset();
     }
 
@@ -142,8 +134,13 @@ namespace jgw
     {
         BaseApp::OnResize(width, height);
 
-        depthTexture = CreateDepthTexture(vk::Format::eD32Sfloat);
         SetupCamera();
+    }
+
+    void ModelApp::OnGizmos()
+    {
+        // TODO
+        canvasPtr->Line(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f));
     }
 
     bool ModelApp::LoadModel()
@@ -299,17 +296,13 @@ namespace jgw
             { .stageFlags = vk::ShaderStageFlagBits::eVertex, .offset = 0, .size = sizeof(glm::mat4) }
         };
 
-        std::vector<vk::Format> colorFormats = { contextPtr->GetSwapchain()->GetFormat() };
-
         PipelineBuilder pd;
-        pd.SetColorFormats(colorFormats);
-        pd.SetDepthFormat(depthTexture->GetFormat());
+        pd.AddShader(vk::ShaderStageFlagBits::eVertex, "shaders/model.vert.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eFragment, "shaders/model.frag.spv");
         pd.SetVertexBindingDescriptions(bindingDescriptions);
         pd.SetVertexAttributeDescriptions(attributeDescriptions);
         pd.SetDescriptorSetLayouts(descriptorSetLayouts);
         pd.SetPushConstantRanges(pushConstantRanges);
-        pd.SetVertexShaderFile("shaders/model.vert.spv");
-        pd.SetFragmentShaderFile("shaders/model.frag.spv");
 
         pipeline = contextPtr->CreateGraphicsPipeline(pd);
         if (pipeline == nullptr)

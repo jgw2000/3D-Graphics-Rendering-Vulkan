@@ -10,6 +10,7 @@ namespace jgw
 
     VulkanContext::~VulkanContext()
     {
+        depthBuffer.reset();
         vmaAllocator.destroy();
 
         if (device)
@@ -186,6 +187,8 @@ namespace jgw
             };
 
             vmaAllocator = vma::createAllocator(allocatorCI);
+
+            depthBuffer = CreateDepthTexture();
         }
         catch (const vk::SystemError& err)
         {
@@ -303,6 +306,7 @@ namespace jgw
     {
         device.waitIdle();
         swapchainPtr->Create(windowHandle);
+        depthBuffer = CreateDepthTexture();
     }
 
     void VulkanContext::WaitDeviceIdle()
@@ -329,7 +333,13 @@ namespace jgw
         auto colorBlendState = pd.BuildColorBlendState();
         auto dynamicState = pd.BuildDynamicState();
         auto pipelineLayout = pd.BuildLayout(device);
-        auto renderingCI = pd.BuildRendering();
+
+        std::vector<vk::Format> colorFormats = { swapchainPtr->GetFormat() };
+        vk::PipelineRenderingCreateInfo renderingCI{
+            .colorAttachmentCount = static_cast<uint32_t>(colorFormats.size()),
+            .pColorAttachmentFormats = colorFormats.data(),
+            .depthAttachmentFormat = depthBuffer->GetFormat()
+        };
 
         vk::GraphicsPipelineCreateInfo pipelineCI{
             .pNext = &renderingCI,
@@ -375,6 +385,26 @@ namespace jgw
     std::unique_ptr<VulkanTexture> VulkanContext::CreateTexture(const TextureDesc& desc, const VmaAllocationDesc& allocDesc)
     {
         return std::make_unique<VulkanTexture>(device, vmaAllocator, desc, allocDesc);
+    }
+
+    std::unique_ptr<VulkanTexture> VulkanContext::CreateDepthTexture(vk::Format depthFormat)
+    {
+        auto extent = swapchainPtr->GetExtent();
+        const TextureDesc desc{
+            .usageFlags = vk::ImageUsageFlagBits::eDepthStencilAttachment,
+            .format = depthFormat,
+            .extent = {
+                .width = extent.width, .height = extent.height, .depth = 1
+            },
+            .aspectMask = vk::ImageAspectFlagBits::eDepth
+        };
+
+        const VmaAllocationDesc allocDesc{
+            .flags = vma::AllocationCreateFlagBits::eDedicatedMemory,
+            .usage = vma::MemoryUsage::eAutoPreferDevice
+        };
+
+        return CreateTexture(desc, allocDesc);
     }
 
     void VulkanContext::UploadBuffer(const void* data, VulkanBuffer* srcBuffer, VulkanBuffer* dstBuffer)

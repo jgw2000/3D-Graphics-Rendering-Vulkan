@@ -46,4 +46,14 @@ namespace jgw
 
         vmaAllocator.destroyBuffer(buffer, vmaAllocation);
     }
+
+    void VulkanBuffer::Map()
+    {
+        mappedMemory = vmaAllocator.mapMemory(vmaAllocation);
+    }
+
+    void VulkanBuffer::CopyFromHost(void* data, vk::DeviceSize size)
+    {
+        memcpy(mappedMemory, data, size);
+    }
 }
