@@ -122,8 +122,15 @@ namespace jgw
             };
             queueCreateInfos.push_back(deviceQueueCI);
 
+            vk::PhysicalDeviceBufferDeviceAddressFeatures deviceAddressFeatures{
+                .bufferDeviceAddress = vk::True
+            };
             vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeature{
+                .pNext = &deviceAddressFeatures,
                 .dynamicRendering = vk::True
+            };
+            vk::PhysicalDeviceFeatures deviceFeatures{
+                .fillModeNonSolid = vk::True
             };
 
             vk::DeviceCreateInfo deviceCI{
@@ -134,7 +141,7 @@ namespace jgw
                 .ppEnabledLayerNames = requestInstanceLayers.data(),
                 .enabledExtensionCount = static_cast<uint32_t>(requestDeviceExtensions.size()),
                 .ppEnabledExtensionNames = requestDeviceExtensions.data(),
-                .pEnabledFeatures = nullptr // No specific features requested
+                .pEnabledFeatures = &deviceFeatures
             };
 
             device = physicalDevice.createDevice(deviceCI);
@@ -179,6 +186,7 @@ namespace jgw
             // Initialize VMA
             vulkanFuncs = vma::functionsFromDispatcher(VULKAN_HPP_DEFAULT_DISPATCHER);
             vma::AllocatorCreateInfo allocatorCI{
+                .flags = vma::AllocatorCreateFlagBits::eBufferDeviceAddress,
                 .physicalDevice = physicalDevice,
                 .device = device,
                 .pVulkanFunctions = &vulkanFuncs,

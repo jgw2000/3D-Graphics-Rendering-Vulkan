@@ -4,13 +4,20 @@ namespace jgw
 {
     bool LineCanvas3D::Initialize(VulkanContext& context)
     {
-        LinePipelineBuilder pd;
+        std::vector<vk::PushConstantRange> pushConstantRanges = {
+            { .stageFlags = vk::ShaderStageFlagBits::eVertex, .offset = 0, .size = sizeof(PushConstantData) }
+        };
 
-        //linePipeline = context.CreateGraphicsPipeline(pd);
-        //if (linePipeline == nullptr)
-        //{
-        //    return false;
-        //}
+        LinePipelineBuilder pd;
+        pd.AddShader(vk::ShaderStageFlagBits::eVertex, "../engine/shaders/line_canvas.vert.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eFragment, "../engine/shaders/line_canvas.frag.spv");
+        pd.SetPushConstantRanges(pushConstantRanges);
+
+        linePipeline = context.CreateGraphicsPipeline(pd);
+        if (linePipeline == nullptr)
+        {
+            return false;
+        }
 
         return true;
     }
@@ -25,17 +32,24 @@ namespace jgw
         {
             lineBuffer = context.CreateBuffer(
                 requiredSize,
-                vk::BufferUsageFlagBits::eStorageBuffer,
+                vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress,
                 vma::AllocationCreateFlagBits::eMapped | vma::AllocationCreateFlagBits::eHostAccessSequentialWrite
             );
+
+            vk::BufferDeviceAddressInfo addrInfo{
+                .buffer = lineBuffer->Handle()
+            };
+            pushConstantData.addr = context.GetDevice().getBufferAddress(addrInfo);
+
             lineBuffer->Map();
         }
 
         lineBuffer->CopyFromHost(lines.data(), requiredSize);
 
         auto commandBuffer = context.GetCommandBuffer();
-        //commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, linePipeline->Handle());
-        //commandBuffer.draw(lines.size(), 1, 0, 0);
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, linePipeline->Handle());
+        commandBuffer.pushConstants(linePipeline->Layout(), vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &pushConstantData);
+        commandBuffer.draw(lines.size(), 1, 0, 0);
     }
 
     void LineCanvas3D::Clear()

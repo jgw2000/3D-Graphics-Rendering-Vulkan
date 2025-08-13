@@ -31,6 +31,12 @@ namespace jgw
             glm::vec4 color;
         };
 
+        struct PushConstantData
+        {
+            glm::mat4 mvp;
+            vk::DeviceAddress addr;
+        } pushConstantData;
+
         std::vector<LineData> lines;
         std::unique_ptr<VulkanBuffer> lineBuffer;
         std::unique_ptr<VulkanPipeline> linePipeline;

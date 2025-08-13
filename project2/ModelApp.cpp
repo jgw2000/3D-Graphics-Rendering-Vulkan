@@ -112,6 +112,7 @@ namespace jgw
         commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4), &mvp);
         commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
 
+        canvasPtr->Render(*contextPtr);
         imguiPtr->Render(commandBuffer);
 
         commandBuffer.endRendering();
