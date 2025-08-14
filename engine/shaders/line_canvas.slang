@@ -22,7 +22,7 @@ struct PushConstantData
 VSOutput vertexMain(uint vertexID : SV_VertexID)
 {
     VSOutput output;
-    output.pos = pcData.vertices[vertexID].pos;
+    output.pos = mul(pcData.mvp, pcData.vertices[vertexID].pos);
     output.color = pcData.vertices[vertexID].color;
     return output;
 }

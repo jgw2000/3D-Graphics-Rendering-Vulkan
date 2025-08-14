@@ -33,6 +33,7 @@ namespace jgw
         virtual void OnKey(int key, int scancode, int action, int mods);
         virtual void OnMouse(int button, int action, int modes);
         virtual void OnMouseMove(float x, float y);
+        virtual void OnMouseScroll(float x, float y);
         virtual void OnResize(int width, int height);
 
         virtual std::vector<const char*> GetInstanceLayers() const;
@@ -60,7 +61,8 @@ namespace jgw
         std::unique_ptr<VulkanContext> contextPtr;
         std::unique_ptr<VulkanImgui> imguiPtr;
         std::unique_ptr<Camera> cameraPtr;
-        std::unique_ptr<LineCanvas3D> canvasPtr;
+        std::unique_ptr<LineCanvas3D> canvas3D;
+        std::unique_ptr<LineCanvas2D> canvas2D;
 
         struct MouseState
         {
@@ -68,6 +70,8 @@ namespace jgw
             bool pressedLeft = false;
             bool pressedRight = false;
         } mouseState;
+
+        FpsCounter fpsCounter{};
 
     private:
         bool Initialize();
@@ -80,6 +84,6 @@ namespace jgw
         int iconified = 0;
         bool showUI = true;
 
-        FpsCounter fpsCounter{};
+        
     };
 }

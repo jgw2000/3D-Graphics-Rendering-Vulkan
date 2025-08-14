@@ -19,7 +19,7 @@ namespace jgw
             return false;
         }
 
-        return InitImgui(vk::Format::eUndefined);
+        return true;
     }
 
     void TriangleApp::OnRender(vk::CommandBuffer commandBuffer)

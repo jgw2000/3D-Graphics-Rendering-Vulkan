@@ -2,8 +2,12 @@
 
 namespace jgw
 {
+    const glm::vec3 kInitialCameraPos = glm::vec3(0.0f, 1.0f, -1.5f);
+    const glm::vec3 kInitialCameraTarget = glm::vec3(0.0f, 0.5f, 0.0f);
+
     ModelApp::ModelApp(const WindowConfig& config) : BaseApp(config)
     {
+        model = glm::rotate(glm::mat4(1.0f), -glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
     bool ModelApp::OnInit()
@@ -23,12 +27,6 @@ namespace jgw
         if (!CreatePipeline())
         {
             spdlog::error("Failed to create pipeline");
-            return false;
-        }
-
-        if (!InitImgui(vk::Format::eD32Sfloat))
-        {
-            spdlog::error("Failed to initialize imgui");
             return false;
         }
 
@@ -104,15 +102,14 @@ namespace jgw
         commandBuffer.setScissor(0, 1, &scissor);
 
         const float ratio = extent.width / (float)extent.height;
-        const glm::mat4 m = glm::rotate(glm::mat4(1.0f), -glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         const glm::mat4 v = cameraPtr->GetViewMatrix();
         const glm::mat4 p = cameraPtr->GetProjMatrix();
-        const glm::mat4 mvp = p * v * m;
+        const glm::mat4 mvp = p * v * model;
 
         commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4), &mvp);
         commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
 
-        canvasPtr->Render(*contextPtr);
+        canvas3D->Render(*contextPtr);
         imguiPtr->Render(commandBuffer);
 
         commandBuffer.endRendering();
@@ -135,13 +132,23 @@ namespace jgw
     {
         BaseApp::OnResize(width, height);
 
-        SetupCamera();
+        auto extent = contextPtr->GetSwapchain()->GetExtent();
+        const float aspect = extent.width / (float)extent.height;
+        cameraPtr->SetAspectRatio(aspect);
     }
 
     void ModelApp::OnGizmos()
     {
-        // TODO
-        canvasPtr->Line(glm::vec3(0.0f), glm::vec3(1.0f), glm::vec4(1.0f));
+        auto viewMatrix = cameraPtr->GetViewMatrix();
+        auto projMatrix = cameraPtr->GetProjMatrix();
+
+        canvas3D->SetMatrix(projMatrix * viewMatrix);
+        canvas3D->Plane(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 40, 40, 10.0f, 10.0f, glm::vec4(1, 0, 0, 1), glm::vec4(0, 1, 0, 1));
+        canvas3D->Box(model, glm::vec3(2, 2, 2), glm::vec4(1, 1, 0, 1));
+        canvas3D->Frustum(
+            glm::lookAt(glm::vec3(cos(glfwGetTime()), kInitialCameraPos.y, sin(glfwGetTime())), kInitialCameraTarget, glm::vec3(0.0f, 1.0f, 0.0f)),
+            projMatrix, glm::vec4(1, 1, 1, 1)
+        );
     }
 
     bool ModelApp::LoadModel()
@@ -319,6 +326,6 @@ namespace jgw
         cameraPtr->SetPosition(glm::vec3(0.0f, 1.0f, 3.0f));
         auto extent = contextPtr->GetSwapchain()->GetExtent();
         const float aspect = extent.width / (float)extent.height;
-        cameraPtr->SetPerspective(45.0f, aspect, 0.1f, 1000.0f);
+        cameraPtr->SetPerspective(glm::radians(45.0f), aspect, 0.1f, 1000.0f);
     }
 }

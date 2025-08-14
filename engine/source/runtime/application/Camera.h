@@ -18,10 +18,12 @@ namespace jgw
 
         void SetPosition(glm::vec3 position);
         void SetRotation(glm::vec3 rotation);
+        void SetAspectRatio(float aspect);
         void SetPerspective(float fov, float aspect, float znear, float zfar);
         
         void Translate(glm::vec3 delta);
         void Rotate(glm::vec3 delta);
+        void Scroll(float delta);
 
         inline glm::vec3 GetPosition() const { return cameraPosition; }
         inline glm::mat4 GetViewMatrix() const { return viewMatrix; }
@@ -34,6 +36,7 @@ namespace jgw
             bool right = false;
             bool up = false;
             bool down = false;
+            bool acc = false;
         } keyState;
 
     protected:
@@ -52,5 +55,10 @@ namespace jgw
 
         glm::mat4 viewMatrix = glm::mat4(1.0f);
         glm::mat4 projMatrix = glm::mat4(1.0f);
+
+        float fov;
+        float aspect;
+        float znear;
+        float zfar;
     };
 }

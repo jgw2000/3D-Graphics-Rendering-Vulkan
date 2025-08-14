@@ -12,6 +12,7 @@ namespace jgw
             camFront.z = cos(glm::radians(cameraRotation.x)) * cos(glm::radians(cameraRotation.y));
             
             float moveSpeed = delta * movementSpeed;
+            if (keyState.acc) moveSpeed *= 3;
 
             if (keyState.up)
                 cameraPosition -= camFront * moveSpeed;
@@ -38,8 +39,18 @@ namespace jgw
         UpdateViewMatrix();
     }
 
+    void Camera::SetAspectRatio(float aspect)
+    {
+        SetPerspective(fov, aspect, znear, zfar);
+    }
+
     void Camera::SetPerspective(float fov, float aspect, float znear, float zfar)
     {
+        this->fov = fov;
+        this->aspect = aspect;
+        this->znear = znear;
+        this->zfar = zfar;
+
         projMatrix = glm::perspective(fov, aspect, znear, zfar);
         projMatrix[1][1] *= -1.0f;
     }
@@ -54,6 +65,13 @@ namespace jgw
     {
         this->cameraRotation += delta;
         UpdateViewMatrix();
+    }
+
+    void Camera::Scroll(float delta)
+    {
+        fov -= 0.1f * delta;
+        fov = glm::clamp(fov, glm::radians(15.0f), glm::radians(90.0f));
+        SetPerspective(fov, aspect, znear, zfar);
     }
 
     void Camera::UpdateViewMatrix()

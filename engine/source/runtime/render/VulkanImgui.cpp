@@ -5,6 +5,8 @@
 #include "bindings/imgui_impl_glfw.h"
 #include "bindings/imgui_impl_vulkan.h"
 
+#include "implot.h"
+
 #include <Volk/volk.h>
 
 namespace jgw
@@ -20,6 +22,7 @@ namespace jgw
         {
             ImGui_ImplVulkan_Shutdown();
             ImGui_ImplGlfw_Shutdown();
+            ImPlot::DestroyContext();
             ImGui::DestroyContext();
         }
 
@@ -70,6 +73,7 @@ namespace jgw
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+        ImPlot::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         

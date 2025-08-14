@@ -15,8 +15,11 @@
 * assimp 5.4.3
 * stb cci.20230920
 * imgui 1.92.0
+* implot
 
 ## 特性
+* Vulkan-HPP
+* Vma
 * Dynamic Rendering
 * Slang
 

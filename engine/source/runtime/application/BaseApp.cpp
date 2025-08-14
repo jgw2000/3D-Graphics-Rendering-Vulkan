@@ -14,7 +14,8 @@ namespace jgw
         contextPtr = std::make_unique<VulkanContext>();
         imguiPtr = std::make_unique<VulkanImgui>();
         cameraPtr = std::make_unique<Camera>();
-        canvasPtr = std::make_unique<LineCanvas3D>();
+        canvas3D = std::make_unique<LineCanvas3D>();
+        canvas2D = std::make_unique<LineCanvas2D>();
     }
 
     void BaseApp::Start()
@@ -56,6 +57,8 @@ namespace jgw
             cameraPtr->keyState.left = pressed;
         if (key == GLFW_KEY_D)
             cameraPtr->keyState.right = pressed;
+        if (key == GLFW_KEY_LEFT_SHIFT)
+            cameraPtr->keyState.acc = pressed;
         if (key == GLFW_KEY_F1 && !pressed)
             showUI = !showUI;
     }
@@ -84,6 +87,11 @@ namespace jgw
         }
 
         mouseState.pos = glm::vec2(nx, ny);
+    }
+
+    void BaseApp::OnMouseScroll(float x, float y)
+    {
+        cameraPtr->Scroll(y);
     }
 
     void BaseApp::OnResize(int width, int height)
@@ -216,7 +224,10 @@ namespace jgw
         if (!contextPtr->Initialize(handle, instanceLayers, instanceExtensions, deviceExtensions))
             return false;
 
-        if (!canvasPtr->Initialize(*contextPtr))
+        if (!InitImgui(contextPtr->GetDepthTexture()->GetFormat()))
+            return false;
+
+        if (!canvas3D->Initialize(*contextPtr))
             return false;
 
         return OnInit();
@@ -256,7 +267,6 @@ namespace jgw
         fpsCounter.Tick(delta);
 
         OnUpdate(delta);
-        OnGizmos();
 
         imguiPtr->BeginFrame();
 
@@ -267,6 +277,10 @@ namespace jgw
             ShowFPS();
         }
 
+        canvas2D->Clear();
+        canvas3D->Clear();
+        OnGizmos();
+
         imguiPtr->EndFrame();
     }
 
@@ -275,8 +289,9 @@ namespace jgw
         OnCleanup();
 
         cameraPtr.reset();
+        canvas3D.reset();
+        canvas2D.reset();
         imguiPtr.reset();
-        canvasPtr.reset();
         contextPtr.reset();
         windowPtr.reset();
     }
@@ -330,6 +345,14 @@ namespace jgw
             if (app)
             {
                 app->OnMouse(button, action, mods);
+            }
+        });
+
+        glfwSetScrollCallback(handle, [](GLFWwindow* window, double xoffset, double yoffset) {
+            BaseApp* app = static_cast<BaseApp*>(glfwGetWindowUserPointer(window));
+            if (app)
+            {
+                app->OnMouseScroll(xoffset, yoffset);
             }
         });
 

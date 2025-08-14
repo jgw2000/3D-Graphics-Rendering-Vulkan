@@ -48,5 +48,7 @@ namespace jgw
         vk::DescriptorPool descriptorPool{};
         vk::DescriptorSet descriptorSet{};
         vk::DescriptorSetLayout descriptorSetLayout{};
+
+        glm::mat4 model;
     };
 }
