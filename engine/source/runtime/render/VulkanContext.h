@@ -8,6 +8,9 @@
 #include "VulkanPipeline.h"
 #include "PipelineBuilder.h"
 
+#include <ktx.h>
+#include <ktxvulkan.h>
+
 namespace jgw
 {
     class VulkanContext final
@@ -59,6 +62,7 @@ namespace jgw
 
         void UploadBuffer(const void* data, VulkanBuffer* srcBuffer, VulkanBuffer* dstBuffer);
         void UploadTexture(const void* data, VulkanBuffer* srcBuffer, VulkanTexture* dstTexture);
+        void UploadCubeTexture(ktxTexture* data, VulkanBuffer* srcBuffer, VulkanTexture* dstTexture);
 
     private:
         bool CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const;

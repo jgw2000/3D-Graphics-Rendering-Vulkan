@@ -7,7 +7,7 @@ namespace jgw
 
     ModelApp::ModelApp(const WindowConfig& config) : BaseApp(config)
     {
-        model = glm::rotate(glm::mat4(1.0f), -glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        pcData.model = glm::rotate(glm::mat4(1.0f), -glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
     bool ModelApp::OnInit()
@@ -102,11 +102,11 @@ namespace jgw
         commandBuffer.setScissor(0, 1, &scissor);
 
         const float ratio = extent.width / (float)extent.height;
-        const glm::mat4 v = cameraPtr->GetViewMatrix();
-        const glm::mat4 p = cameraPtr->GetProjMatrix();
-        const glm::mat4 mvp = p * v * model;
+        pcData.view = cameraPtr->GetViewMatrix();
+        pcData.proj = cameraPtr->GetProjMatrix();
+        pcData.cameraPos = glm::vec4(cameraPtr->GetPosition(), 1);
 
-        commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex, 0, sizeof(glm::mat4), &mvp);
+        commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstantData), &pcData);
         commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
 
         canvas3D->Render(*contextPtr);
@@ -126,6 +126,7 @@ namespace jgw
         indexBuffer.reset();
         pipeline.reset();
         modelTexture.reset();
+        cubeTexture.reset();
     }
 
     void ModelApp::OnResize(int width, int height)
@@ -144,7 +145,7 @@ namespace jgw
 
         canvas3D->SetMatrix(projMatrix * viewMatrix);
         canvas3D->Plane(glm::vec3(0, 0, 0), glm::vec3(1, 0, 0), glm::vec3(0, 0, 1), 40, 40, 10.0f, 10.0f, glm::vec4(1, 0, 0, 1), glm::vec4(0, 1, 0, 1));
-        canvas3D->Box(model, glm::vec3(2, 2, 2), glm::vec4(1, 1, 0, 1));
+        canvas3D->Box(pcData.model, glm::vec3(2, 2, 2), glm::vec4(1, 1, 0, 1));
         canvas3D->Frustum(
             glm::lookAt(glm::vec3(cos(glfwGetTime()), kInitialCameraPos.y, sin(glfwGetTime())), kInitialCameraTarget, glm::vec3(0.0f, 1.0f, 0.0f)),
             projMatrix, glm::vec4(1, 1, 1, 1)
@@ -212,6 +213,7 @@ namespace jgw
         contextPtr->EndCommand();
 
         modelTexture = LoadTexture("rubber_duck/textures/Duck_baseColor.png", true);
+        cubeTexture = LoadCubeTexture("data/cubemap_yokohama_rgba.ktx");
 
         vk::SamplerCreateInfo samplerCI{
             .magFilter = vk::Filter::eLinear,
@@ -230,16 +232,24 @@ namespace jgw
         auto device = GetDevice();
 
         // Create descriptor set layout
-        vk::DescriptorSetLayoutBinding samplerBinding{
-            .binding = 0,
-            .descriptorType = vk::DescriptorType::eCombinedImageSampler,
-            .descriptorCount = 1,
-            .stageFlags = vk::ShaderStageFlagBits::eFragment
+        std::vector<vk::DescriptorSetLayoutBinding> samplerBindings = {
+            {
+                .binding = 0,
+                .descriptorType = vk::DescriptorType::eCombinedImageSampler,
+                .descriptorCount = 1,
+                .stageFlags = vk::ShaderStageFlagBits::eFragment
+            },
+            {
+                .binding = 1,
+                .descriptorType = vk::DescriptorType::eCombinedImageSampler,
+                .descriptorCount = 1,
+                .stageFlags = vk::ShaderStageFlagBits::eFragment
+            }
         };
 
         vk::DescriptorSetLayoutCreateInfo layoutCI{
-            .bindingCount = 1,
-            .pBindings = &samplerBinding
+            .bindingCount = static_cast<uint32_t>(samplerBindings.size()),
+            .pBindings = samplerBindings.data()
         };
 
         descriptorSetLayout = device.createDescriptorSetLayout(layoutCI);
@@ -247,7 +257,7 @@ namespace jgw
         // Create descriptor pool
         vk::DescriptorPoolSize poolSize{
             .type = vk::DescriptorType::eCombinedImageSampler,
-            .descriptorCount = 1
+            .descriptorCount = 2
         };
 
         vk::DescriptorPoolCreateInfo poolInfo{
@@ -284,6 +294,10 @@ namespace jgw
 
         device.updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
 
+        imageInfo.imageView = cubeTexture->GetView();
+        descriptorWrite.dstBinding = 1;
+        device.updateDescriptorSets(1, &descriptorWrite, 0, nullptr);
+
         return true;
     }
 
@@ -301,7 +315,7 @@ namespace jgw
 
         std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = { descriptorSetLayout };
         std::vector<vk::PushConstantRange> pushConstantRanges = {
-            { .stageFlags = vk::ShaderStageFlagBits::eVertex, .offset = 0, .size = sizeof(glm::mat4) }
+            { .stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, .offset = 0, .size = sizeof(PushConstantData) }
         };
 
         PipelineBuilder pd;

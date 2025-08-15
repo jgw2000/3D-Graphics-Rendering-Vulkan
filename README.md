@@ -16,6 +16,7 @@
 * stb cci.20230920
 * imgui 1.92.0
 * implot
+* ktx 4.3.2
 
 ## 特性
 * Vulkan-HPP

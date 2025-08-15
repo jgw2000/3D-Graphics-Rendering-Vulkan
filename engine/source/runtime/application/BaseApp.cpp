@@ -199,12 +199,52 @@ namespace jgw
             vma::AllocationCreateFlagBits::eMapped | vma::AllocationCreateFlagBits::eHostAccessSequentialWrite
         );
 
-        // TODO
         contextPtr->BeginCommand();
         contextPtr->UploadTexture(data, stagingBuffer.get(), texture.get());
         contextPtr->EndCommand();
 
         stbi_image_free(data);
+
+        return texture;
+    }
+
+    std::unique_ptr<VulkanTexture> BaseApp::LoadCubeTexture(const char* filename)
+    {
+        ktxTexture* ktxTexture;
+        ktxResult result = ktxTexture_CreateFromNamedFile(filename, KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &ktxTexture);
+        assert(result == KTX_SUCCESS);
+
+        ktx_size_t ktxTextureSize = ktxTexture_GetDataSize(ktxTexture);
+
+        const TextureDesc desc{
+            .flags = vk::ImageCreateFlagBits::eCubeCompatible,
+            .usageFlags = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+            .viewType = vk::ImageViewType::eCube,
+            .extent = {
+                .width = static_cast<uint32_t>(ktxTexture->baseWidth),
+                .height = static_cast<uint32_t>(ktxTexture->baseHeight),
+                .depth = 1
+            },
+            .mipLevels = ktxTexture->numLevels,
+            .arrayLayers = 6
+        };
+
+        const VmaAllocationDesc allocDesc{
+            .usage = vma::MemoryUsage::eAutoPreferDevice
+        };
+
+        std::unique_ptr<VulkanTexture> texture = contextPtr->CreateTexture(desc, allocDesc);
+        std::unique_ptr<VulkanBuffer> stagingBuffer = contextPtr->CreateBuffer(
+            ktxTextureSize,
+            vk::BufferUsageFlagBits::eTransferSrc,
+            vma::AllocationCreateFlagBits::eMapped | vma::AllocationCreateFlagBits::eHostAccessSequentialWrite
+        );
+
+        contextPtr->BeginCommand();
+        contextPtr->UploadCubeTexture(ktxTexture, stagingBuffer.get(), texture.get());
+        contextPtr->EndCommand();
+        
+        ktxTexture_Destroy(ktxTexture);
 
         return texture;
     }

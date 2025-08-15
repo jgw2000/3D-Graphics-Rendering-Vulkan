@@ -455,6 +455,51 @@ namespace jgw
         dstTexture->TransitionMipLayout(commandBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, dstTexture->desc.mipLevels - 1);
     }
 
+    void VulkanContext::UploadCubeTexture(ktxTexture* data, VulkanBuffer* srcBuffer, VulkanTexture* dstTexture)
+    {
+        ktx_uint8_t* ktxTextureData = ktxTexture_GetData(data);
+        memcpy(srcBuffer->mappedMemory, ktxTextureData, srcBuffer->size);
+
+        auto commandBuffer = GetCommandBuffer();
+        dstTexture->TransitionLayout(commandBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+
+        std::vector<vk::BufferImageCopy> bufferCopyRegions;
+        for (uint32_t face = 0; face < 6; ++face)
+        {
+            for (uint32_t level = 0; level < dstTexture->desc.mipLevels; ++level)
+            {
+                ktx_size_t offset;
+                KTX_error_code ret = ktxTexture_GetImageOffset(data, level, 0, face, &offset);
+                assert(ret == KTX_SUCCESS);
+
+                vk::BufferImageCopy region{
+                    .bufferOffset = offset,
+                    .bufferRowLength = 0,
+                    .bufferImageHeight = 0,
+                    .imageSubresource = {
+                        .aspectMask = dstTexture->desc.aspectMask,
+                        .mipLevel = level,
+                        .baseArrayLayer = face,
+                        .layerCount = 1
+                    },
+                    .imageOffset = { 0, 0, 0 },
+                    .imageExtent = {
+                        .width = data->baseWidth >> level,
+                        .height = data->baseHeight >> level,
+                        .depth = 1
+                    }
+                };
+                bufferCopyRegions.push_back(region);
+            }
+            
+        }
+        
+        commandBuffer.copyBufferToImage(srcBuffer->buffer, dstTexture->image, vk::ImageLayout::eTransferDstOptimal,
+            static_cast<uint32_t>(bufferCopyRegions.size()), bufferCopyRegions.data());
+
+        dstTexture->TransitionLayout(commandBuffer, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+    }
+
     bool VulkanContext::CheckInstanceLayerSupport(const std::vector<const char*>& requestInstanceLayers) const
     {
         if (requestInstanceLayers.empty())

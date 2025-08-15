@@ -43,12 +43,19 @@ namespace jgw
         std::unique_ptr<VulkanBuffer> indexBuffer;
         std::unique_ptr<VulkanPipeline> pipeline;
         std::unique_ptr<VulkanTexture> modelTexture;
+        std::unique_ptr<VulkanTexture> cubeTexture;
 
         vk::Sampler sampler{};
         vk::DescriptorPool descriptorPool{};
         vk::DescriptorSet descriptorSet{};
         vk::DescriptorSetLayout descriptorSetLayout{};
 
-        glm::mat4 model;
+        struct PushConstantData
+        {
+            glm::mat4 model;
+            glm::mat4 view;
+            glm::mat4 proj;
+            glm::vec4 cameraPos;
+        } pcData;
     };
 }
