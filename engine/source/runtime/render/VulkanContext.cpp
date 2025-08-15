@@ -464,7 +464,7 @@ namespace jgw
         dstTexture->TransitionLayout(commandBuffer, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 
         std::vector<vk::BufferImageCopy> bufferCopyRegions;
-        for (uint32_t face = 0; face < 6; ++face)
+        for (uint32_t face = 0; face < data->numFaces; ++face)
         {
             for (uint32_t level = 0; level < dstTexture->desc.mipLevels; ++level)
             {
@@ -486,7 +486,7 @@ namespace jgw
                     .imageExtent = {
                         .width = data->baseWidth >> level,
                         .height = data->baseHeight >> level,
-                        .depth = 1
+                        .depth = data->baseDepth
                     }
                 };
                 bufferCopyRegions.push_back(region);

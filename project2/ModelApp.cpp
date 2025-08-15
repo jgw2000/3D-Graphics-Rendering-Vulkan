@@ -213,7 +213,7 @@ namespace jgw
         contextPtr->EndCommand();
 
         modelTexture = LoadTexture("rubber_duck/textures/Duck_baseColor.png", true);
-        cubeTexture = LoadCubeTexture("data/cubemap_yokohama_rgba.ktx");
+        cubeTexture = LoadCubeTexture("data/cubemap_yokohama_rgba.ktx", vk::Format::eR8G8B8A8Unorm);
 
         vk::SamplerCreateInfo samplerCI{
             .magFilter = vk::Filter::eLinear,

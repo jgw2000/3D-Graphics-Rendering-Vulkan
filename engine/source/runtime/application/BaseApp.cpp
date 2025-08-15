@@ -208,7 +208,7 @@ namespace jgw
         return texture;
     }
 
-    std::unique_ptr<VulkanTexture> BaseApp::LoadCubeTexture(const char* filename)
+    std::unique_ptr<VulkanTexture> BaseApp::LoadCubeTexture(const char* filename, vk::Format format)
     {
         ktxTexture* ktxTexture;
         ktxResult result = ktxTexture_CreateFromNamedFile(filename, KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &ktxTexture);
@@ -220,13 +220,15 @@ namespace jgw
             .flags = vk::ImageCreateFlagBits::eCubeCompatible,
             .usageFlags = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
             .viewType = vk::ImageViewType::eCube,
+            .format = format,
             .extent = {
                 .width = static_cast<uint32_t>(ktxTexture->baseWidth),
                 .height = static_cast<uint32_t>(ktxTexture->baseHeight),
-                .depth = 1
+                .depth = ktxTexture->baseDepth
             },
             .mipLevels = ktxTexture->numLevels,
-            .arrayLayers = 6
+            .arrayLayers = ktxTexture->numFaces,
+            .mipmapped = (ktxTexture->numLevels > 1)
         };
 
         const VmaAllocationDesc allocDesc{

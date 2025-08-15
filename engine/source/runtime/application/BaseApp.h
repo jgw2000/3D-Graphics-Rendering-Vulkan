@@ -56,7 +56,7 @@ namespace jgw
         );
 
         std::unique_ptr<VulkanTexture> LoadTexture(const char* filename, bool mipmapped = false);
-        std::unique_ptr<VulkanTexture> LoadCubeTexture(const char* filename);
+        std::unique_ptr<VulkanTexture> LoadCubeTexture(const char* filename, vk::Format format);
 
         std::unique_ptr<Window> windowPtr;
         std::unique_ptr<VulkanContext> contextPtr;
