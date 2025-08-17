@@ -109,6 +109,12 @@ namespace jgw
         commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstantData), &pcData);
         commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
 
+        // Render skybox
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, skyboxPipeline->Handle());
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, skyboxPipeline->Layout(), 0, 1, &descriptorSet, 0, nullptr);
+        commandBuffer.pushConstants(skyboxPipeline->Layout(), vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstantData), &pcData);
+        commandBuffer.draw(36, 1, 0, 0);
+
         canvas3D->Render(*contextPtr);
         imguiPtr->Render(commandBuffer);
 
@@ -125,6 +131,7 @@ namespace jgw
         vertexBuffer.reset();
         indexBuffer.reset();
         pipeline.reset();
+        skyboxPipeline.reset();
         modelTexture.reset();
         cubeTexture.reset();
     }
@@ -328,6 +335,18 @@ namespace jgw
 
         pipeline = contextPtr->CreateGraphicsPipeline(pd);
         if (pipeline == nullptr)
+        {
+            return false;
+        }
+
+        PipelineBuilder skyboxPd;
+        skyboxPd.AddShader(vk::ShaderStageFlagBits::eVertex, "shaders/skybox.vert.spv");
+        skyboxPd.AddShader(vk::ShaderStageFlagBits::eFragment, "shaders/skybox.frag.spv");
+        skyboxPd.SetDescriptorSetLayouts(descriptorSetLayouts);
+        skyboxPd.SetPushConstantRanges(pushConstantRanges);
+
+        skyboxPipeline = contextPtr->CreateGraphicsPipeline(skyboxPd);
+        if (skyboxPipeline == nullptr)
         {
             return false;
         }

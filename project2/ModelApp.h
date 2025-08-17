@@ -42,6 +42,7 @@ namespace jgw
         std::unique_ptr<VulkanBuffer> vertexBuffer;
         std::unique_ptr<VulkanBuffer> indexBuffer;
         std::unique_ptr<VulkanPipeline> pipeline;
+        std::unique_ptr<VulkanPipeline> skyboxPipeline;
         std::unique_ptr<VulkanTexture> modelTexture;
         std::unique_ptr<VulkanTexture> cubeTexture;
 
