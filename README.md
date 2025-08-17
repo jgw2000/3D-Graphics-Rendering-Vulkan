@@ -29,3 +29,8 @@
 
 ### Project 2 - Model
 ![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/project2/model.png)
+
+* Rendering ImGui user interface
+* Implementing an immediate-mode 3D drawing canvas
+* Adding a first-person 3D camera
+* Using cube map textures

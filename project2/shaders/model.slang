@@ -46,7 +46,7 @@ float4 fragmentMain(VSOutput input)
     float4 colorRefl = samplerSkybox.Sample(reflection);
     float4 ka = colorRefl * 0.3f;
 
-    float NdotL = clamp(dot(n, normalize(float3(0, 0, -1))), 0.1, 1.0);
+    float NdotL = clamp(dot(n, normalize(float3(-1, 1, 1))), 0.1, 1.0);
     float4 kd = samplerColor.Sample(input.uv) * NdotL;
 
     return ka + kd;
