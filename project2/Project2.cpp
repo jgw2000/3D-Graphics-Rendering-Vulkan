@@ -161,7 +161,7 @@ namespace jgw
 
     bool Project2::LoadModel()
     {
-        const aiScene* scene = aiImportFile("rubber_duck/scene.gltf", aiProcess_Triangulate);
+        const aiScene* scene = aiImportFile("../assets/rubber_duck/scene.gltf", aiProcess_Triangulate);
         if (!scene || !scene->HasMeshes())
         {
             spdlog::error(aiGetErrorString());
@@ -219,8 +219,8 @@ namespace jgw
         contextPtr->UploadBuffer(indices.data(), stagingIndexBuffer.get(), indexBuffer.get());
         contextPtr->EndCommand();
 
-        modelTexture = LoadTexture("rubber_duck/textures/Duck_baseColor.png", true);
-        cubeTexture = LoadCubeTexture("data/cubemap_yokohama_rgba.ktx", vk::Format::eR8G8B8A8Unorm);
+        modelTexture = LoadTexture("../assets/rubber_duck/textures/Duck_baseColor.png", true);
+        cubeTexture = LoadCubeTexture("../assets/cubemap_yokohama_rgba.ktx", vk::Format::eR8G8B8A8Unorm);
 
         vk::SamplerCreateInfo samplerCI{
             .magFilter = vk::Filter::eLinear,

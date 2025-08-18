@@ -131,7 +131,7 @@ namespace jgw
 
     bool Project3::LoadModel()
     {
-        const aiScene* scene = aiImportFile("rubber_duck/scene.gltf", aiProcess_Triangulate);
+        const aiScene* scene = aiImportFile("../assets/rubber_duck/scene.gltf", aiProcess_Triangulate);
         if (!scene || !scene->HasMeshes())
         {
             spdlog::error(aiGetErrorString());
