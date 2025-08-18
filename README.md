@@ -17,6 +17,7 @@
 * imgui 1.92.0
 * implot
 * ktx 4.3.2
+* meshoptimizer 0.23
 
 ## 特性
 * Vulkan-HPP

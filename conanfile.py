@@ -14,6 +14,7 @@ class ExampleRecipe(ConanFile):
         self.requires("stb/cci.20230920")
         self.requires("imgui/1.92.0")
         self.requires("ktx/4.3.2")
+        self.requires("meshoptimizer/0.23")
 
     def layout(self):
         cmake_layout(self)
