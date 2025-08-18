@@ -22,8 +22,8 @@
 ## 特性
 * Vulkan-HPP
 * Vma
-* Dynamic Rendering
 * Slang
+* Dynamic Rendering
 
 ### Project 1
 ![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/results/project1.png)
