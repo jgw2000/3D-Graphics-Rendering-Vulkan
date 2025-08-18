@@ -41,3 +41,4 @@
 
 * Generating LOD meshes using MeshOptimizer
 * Implementing programmable vertex pulling
+* Using geometry shader for wireframe rendering
