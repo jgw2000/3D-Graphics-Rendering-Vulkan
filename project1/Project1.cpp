@@ -1,13 +1,13 @@
-#include "TriangleApp.h"
+#include "Project1.h"
 
 namespace jgw
 {
-    TriangleApp::TriangleApp(const WindowConfig& config) : BaseApp(config)
+    Project1::Project1(const WindowConfig& config) : BaseApp(config)
     {
 
     }
 
-    bool TriangleApp::OnInit()
+    bool Project1::OnInit()
     {
         PipelineBuilder pd;
         pd.AddShader(vk::ShaderStageFlagBits::eVertex, "shaders/triangle.vert.spv");
@@ -22,7 +22,7 @@ namespace jgw
         return true;
     }
 
-    void TriangleApp::OnRender(vk::CommandBuffer commandBuffer)
+    void Project1::OnRender(vk::CommandBuffer commandBuffer)
     {
         vk::ClearValue clear_value{
             .color = std::array<float, 4>({0.0f, 0.0f, 0.0f, 1.0f})
@@ -71,7 +71,7 @@ namespace jgw
         commandBuffer.endRendering();
     }
 
-    void TriangleApp::OnCleanup()
+    void Project1::OnCleanup()
     {
         pipeline.reset();
     }

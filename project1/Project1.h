@@ -4,12 +4,12 @@
 
 namespace jgw
 {
-    class TriangleApp : public BaseApp
+    class Project1 : public BaseApp
     {
     public:
-        CLASS_COPY_MOVE_DELETE(TriangleApp)
+        CLASS_COPY_MOVE_DELETE(Project1)
 
-        TriangleApp(const WindowConfig& config = {});
+        Project1(const WindowConfig& config = {});
 
     protected:
         virtual bool OnInit() override;

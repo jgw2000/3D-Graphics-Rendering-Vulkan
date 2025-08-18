@@ -15,12 +15,12 @@ namespace jgw
         glm::vec2 uv;
     };
 
-    class ModelApp : public BaseApp
+    class Project2 : public BaseApp
     {
     public:
-        CLASS_COPY_MOVE_DELETE(ModelApp)
+        CLASS_COPY_MOVE_DELETE(Project2)
 
-        ModelApp(const WindowConfig& config = {});
+        Project2(const WindowConfig& config = {});
 
     protected:
         virtual bool OnInit() override;

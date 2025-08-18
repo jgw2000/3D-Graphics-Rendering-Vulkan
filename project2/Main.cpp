@@ -1,11 +1,11 @@
-#include "ModelApp.h"
+#include "Project2.h"
 
 int main()
 {
     jgw::WindowConfig config;
     config.title = "Vulkan Project 2 - Model";
 
-    jgw::ModelApp app(config);
+    jgw::Project2 app(config);
     app.Start();
 
     return 0;

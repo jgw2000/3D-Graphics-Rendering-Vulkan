@@ -1,16 +1,16 @@
-#include "ModelApp.h"
+#include "Project2.h"
 
 namespace jgw
 {
     const glm::vec3 kInitialCameraPos = glm::vec3(0.0f, 1.0f, -1.5f);
     const glm::vec3 kInitialCameraTarget = glm::vec3(0.0f, 0.5f, 0.0f);
 
-    ModelApp::ModelApp(const WindowConfig& config) : BaseApp(config)
+    Project2::Project2(const WindowConfig& config) : BaseApp(config)
     {
         pcData.model = glm::rotate(glm::mat4(1.0f), -glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
-    bool ModelApp::OnInit()
+    bool Project2::OnInit()
     {
         if (!LoadModel())
         {
@@ -35,12 +35,12 @@ namespace jgw
         return true;
     }
 
-    void ModelApp::OnUpdate(double delta)
+    void Project2::OnUpdate(double delta)
     {
         cameraPtr->Update(delta);
     }
 
-    void ModelApp::OnRender(vk::CommandBuffer commandBuffer)
+    void Project2::OnRender(vk::CommandBuffer commandBuffer)
     {
         vk::ClearValue colorCV{
             .color = std::array<float, 4>({0.0f, 0.0f, 0.0f, 1.0f}),
@@ -121,7 +121,7 @@ namespace jgw
         commandBuffer.endRendering();
     }
 
-    void ModelApp::OnCleanup()
+    void Project2::OnCleanup()
     {
         auto device = GetDevice();
         device.destroyDescriptorSetLayout(descriptorSetLayout);
@@ -136,7 +136,7 @@ namespace jgw
         cubeTexture.reset();
     }
 
-    void ModelApp::OnResize(int width, int height)
+    void Project2::OnResize(int width, int height)
     {
         BaseApp::OnResize(width, height);
 
@@ -145,7 +145,7 @@ namespace jgw
         cameraPtr->SetAspectRatio(aspect);
     }
 
-    void ModelApp::OnGizmos()
+    void Project2::OnGizmos()
     {
         auto viewMatrix = cameraPtr->GetViewMatrix();
         auto projMatrix = cameraPtr->GetProjMatrix();
@@ -159,7 +159,7 @@ namespace jgw
         );
     }
 
-    bool ModelApp::LoadModel()
+    bool Project2::LoadModel()
     {
         const aiScene* scene = aiImportFile("rubber_duck/scene.gltf", aiProcess_Triangulate);
         if (!scene || !scene->HasMeshes())
@@ -234,7 +234,7 @@ namespace jgw
         return true;
     }
 
-    bool ModelApp::CreateDescriptors()
+    bool Project2::CreateDescriptors()
     {
         auto device = GetDevice();
 
@@ -308,7 +308,7 @@ namespace jgw
         return true;
     }
 
-    bool ModelApp::CreatePipeline()
+    bool Project2::CreatePipeline()
     {
         std::vector<vk::VertexInputBindingDescription> bindingDescriptions = {
             { .binding = 0, .stride = sizeof(VertexData), .inputRate = vk::VertexInputRate::eVertex}
@@ -354,7 +354,7 @@ namespace jgw
         return true;
     }
 
-    void ModelApp::SetupCamera()
+    void Project2::SetupCamera()
     {
         cameraPtr->SetPosition(glm::vec3(0.0f, 1.0f, 3.0f));
         auto extent = contextPtr->GetSwapchain()->GetExtent();
