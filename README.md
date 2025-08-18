@@ -26,10 +26,10 @@
 * Slang
 
 ### Project 1
-![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/project1/triangle.png)
+![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/results/project1.png)
 
 ### Project 2
-![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/project2/model.png)
+![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/results/project2.png)
 
 * Rendering ImGui user interface
 * Implementing an immediate-mode 3D drawing canvas
