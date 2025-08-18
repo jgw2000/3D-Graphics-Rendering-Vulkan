@@ -311,7 +311,7 @@ namespace jgw
     bool Project2::CreatePipeline()
     {
         std::vector<vk::VertexInputBindingDescription> bindingDescriptions = {
-            { .binding = 0, .stride = sizeof(VertexData), .inputRate = vk::VertexInputRate::eVertex}
+            { .binding = 0, .stride = sizeof(VertexData), .inputRate = vk::VertexInputRate::eVertex }
         };
 
         std::vector<vk::VertexInputAttributeDescription> attributeDescriptions = {

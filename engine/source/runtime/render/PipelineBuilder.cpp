@@ -172,4 +172,22 @@ namespace jgw
             return nullptr;
         }
     }
+
+    vk::PipelineRasterizationStateCreateInfo WireframePipelineBuilder::BuildRasterizationState()
+    {
+        vk::PipelineRasterizationStateCreateInfo rasterizationStateCI{
+            .depthClampEnable = vk::False,
+            .rasterizerDiscardEnable = vk::False,
+            .polygonMode = vk::PolygonMode::eLine,
+            .cullMode = vk::CullModeFlagBits::eBack,
+            .frontFace = vk::FrontFace::eCounterClockwise,
+            .depthBiasEnable = vk::False,
+            .depthBiasConstantFactor = 0.0f,
+            .depthBiasClamp = 0.0f,
+            .depthBiasSlopeFactor = 0.0f,
+            .lineWidth = 1.0f
+        };
+
+        return rasterizationStateCI;
+    }
 }

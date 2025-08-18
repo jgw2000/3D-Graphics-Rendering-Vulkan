@@ -36,3 +36,7 @@
 * Adding a first-person 3D camera
 * Using cube map textures
 * Using storage buffer
+
+### Project 3
+
+* Generating LOD meshes using MeshOptimizer

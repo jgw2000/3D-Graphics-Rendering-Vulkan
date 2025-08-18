@@ -54,4 +54,14 @@ namespace jgw
         std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;
         std::vector<vk::PushConstantRange> pushConstantRanges;
     };
+
+    class WireframePipelineBuilder : public PipelineBuilder
+    {
+    public:
+        CLASS_COPY_MOVE_DELETE(WireframePipelineBuilder)
+
+        WireframePipelineBuilder() = default;
+
+        virtual vk::PipelineRasterizationStateCreateInfo BuildRasterizationState() override;
+    };
 }

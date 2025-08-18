@@ -2,10 +2,6 @@
 
 #include "BaseApp.h"
 
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <assimp/cimport.h>
-
 namespace jgw
 {
     struct VertexData
