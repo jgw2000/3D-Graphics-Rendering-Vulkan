@@ -24,10 +24,10 @@
 * Dynamic Rendering
 * Slang
 
-### Project 1 - Triangle
+### Project 1
 ![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/project1/triangle.png)
 
-### Project 2 - Model
+### Project 2
 ![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/project2/model.png)
 
 * Rendering ImGui user interface
