@@ -129,9 +129,6 @@ namespace jgw
                 .pNext = &deviceAddressFeatures,
                 .dynamicRendering = vk::True
             };
-            vk::PhysicalDeviceFeatures deviceFeatures{
-                .fillModeNonSolid = vk::True
-            };
 
             vk::DeviceCreateInfo deviceCI{
                 .pNext = &dynamicRenderingFeature,

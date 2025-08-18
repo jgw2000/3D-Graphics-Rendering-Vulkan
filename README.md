@@ -40,3 +40,4 @@
 ### Project 3
 
 * Generating LOD meshes using MeshOptimizer
+* Implementing programmable vertex pulling

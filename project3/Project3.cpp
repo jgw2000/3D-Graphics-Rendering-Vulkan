@@ -6,7 +6,9 @@
 namespace jgw
 {
     Project3::Project3(const WindowConfig& config) : BaseApp(config)
-    { }
+    {
+        contextPtr->GetDeviceFeatures().geometryShader = vk::True;
+    }
 
     bool Project3::OnInit()
     {
@@ -210,8 +212,9 @@ namespace jgw
             { .stageFlags = vk::ShaderStageFlagBits::eVertex, .offset = 0, .size = sizeof(PushConstantData) }
         };
 
-        WireframePipelineBuilder pd;
+        PipelineBuilder pd;
         pd.AddShader(vk::ShaderStageFlagBits::eVertex, "shaders/main.vert.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eGeometry, "shaders/main.geom.spv");
         pd.AddShader(vk::ShaderStageFlagBits::eFragment, "shaders/main.frag.spv");
         pd.SetVertexBindingDescriptions(bindingDescriptions);
         pd.SetVertexAttributeDescriptions(attributeDescriptions);

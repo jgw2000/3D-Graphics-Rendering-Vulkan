@@ -42,6 +42,7 @@ namespace jgw
         uint32_t GetQueuFamily() const { return graphicsFamilyIndex; }
         vk::Instance GetInstance() const { return instance; }
         vk::PhysicalDevice GetPhysicalDevice() const { return physicalDevice; }
+        vk::PhysicalDeviceFeatures& GetDeviceFeatures() { return deviceFeatures; }
         vk::Device GetDevice() const { return device; }
         vk::Queue GetQueue() const { return graphicsQueue; }
         vk::CommandBuffer GetCommandBuffer() const { return commandBuffers[currentFrame]; }
@@ -75,6 +76,7 @@ namespace jgw
         vk::Instance instance{};
         vk::SurfaceKHR surface{};
         vk::PhysicalDevice physicalDevice{};
+        vk::PhysicalDeviceFeatures deviceFeatures{ .fillModeNonSolid = vk::True };
         vk::Device device{};
         vk::Queue graphicsQueue{};
         vk::CommandPool commandPool{};
