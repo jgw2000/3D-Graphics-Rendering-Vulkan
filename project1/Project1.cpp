@@ -10,8 +10,8 @@ namespace jgw
     bool Project1::OnInit()
     {
         PipelineBuilder pd;
-        pd.AddShader(vk::ShaderStageFlagBits::eVertex, "shaders/triangle.vert.spv");
-        pd.AddShader(vk::ShaderStageFlagBits::eFragment, "shaders/triangle.frag.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eVertex, "shaders/main.vert.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eFragment, "shaders/main.frag.spv");
         pipeline = contextPtr->CreateGraphicsPipeline(pd);
 
         if (pipeline == nullptr)

@@ -115,8 +115,8 @@ namespace jgw
         };
 
         LinePipelineBuilder pd;
-        pd.AddShader(vk::ShaderStageFlagBits::eVertex, "../engine/shaders/line_canvas.vert.spv");
-        pd.AddShader(vk::ShaderStageFlagBits::eFragment, "../engine/shaders/line_canvas.frag.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eVertex, "../engine/shaders/canvas.vert.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eFragment, "../engine/shaders/canvas.frag.spv");
         pd.SetPushConstantRanges(pushConstantRanges);
 
         linePipeline = context.CreateGraphicsPipeline(pd);

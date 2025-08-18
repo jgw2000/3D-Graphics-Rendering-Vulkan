@@ -326,8 +326,8 @@ namespace jgw
         };
 
         PipelineBuilder pd;
-        pd.AddShader(vk::ShaderStageFlagBits::eVertex, "shaders/model.vert.spv");
-        pd.AddShader(vk::ShaderStageFlagBits::eFragment, "shaders/model.frag.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eVertex, "shaders/main.vert.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eFragment, "shaders/main.frag.spv");
         pd.SetVertexBindingDescriptions(bindingDescriptions);
         pd.SetVertexAttributeDescriptions(attributeDescriptions);
         pd.SetDescriptorSetLayouts(descriptorSetLayouts);
