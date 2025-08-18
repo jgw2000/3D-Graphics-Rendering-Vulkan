@@ -3,7 +3,7 @@
 int main()
 {
     jgw::WindowConfig config;
-    config.title = "Vulkan Project 2 - Model";
+    config.title = "Vulkan Project 2";
 
     jgw::Project2 app(config);
     app.Start();
