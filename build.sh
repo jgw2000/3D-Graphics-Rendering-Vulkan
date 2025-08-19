@@ -1,3 +1,5 @@
+python deploy_deps.py
+
 conan profile detect --force
 conan install . --output-folder=. --build=missing --profile=profiles/debug
 cmake --preset conan-default

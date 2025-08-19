@@ -35,4 +35,8 @@
 *.ini
 
 build
+deps/*
+!deps/bootstrap.json
+!deps/bootstrap.py
+
 CMakeUserPresets.json
