@@ -19,14 +19,14 @@
 * ktx 4.3.2
 * meshoptimizer 0.23
 
-## 编译运行
-In the project root directory "Open Git Bash here", execute "bash build.sh" and it will generate VS project solution in the build directory.
-
 ## 特性
 * Vulkan-HPP
 * Vma
 * Slang
 * Dynamic Rendering
+
+## 编译运行
+In the project root directory "Open Git Bash here", execute "bash build.sh" and it will generate VS project solution in the build directory.
 
 ### Project 1
 ![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/results/project1.png)
