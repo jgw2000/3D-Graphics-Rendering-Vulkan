@@ -19,6 +19,9 @@
 * ktx 4.3.2
 * meshoptimizer 0.23
 
+## 编译运行
+In the project root directory "Open Git Bash here", execute "bash build.sh" and it will generate VS project solution in the build directory.
+
 ## 特性
 * Vulkan-HPP
 * Vma
