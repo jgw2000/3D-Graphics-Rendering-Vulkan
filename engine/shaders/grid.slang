@@ -55,6 +55,11 @@ float2 satv(float2 x)
     return clamp(x, float2(0.0), float2(1.0));
 }
 
+float2 mod(float2 x, float y)
+{
+    return x - y * floor(x / y);
+}
+
 // ref: https://bgolus.medium.com/the-best-darn-grid-shader-yet-727f9278b9d8
 float4 gridColor(float2 uv, float2 camPos)
 {
@@ -78,9 +83,9 @@ float4 gridColor(float2 uv, float2 camPos)
     uv += dudv * 0.5;
 
     // calculate absolute distances to cell line centers for each lod and pick max X/Y to get coverage alpha value
-    float lod0a = max2(float2(1.0) - abs(satv(abs(uv % lod0) / dudv) * 2.0 - float2(1.0)));
-    float lod1a = max2(float2(1.0) - abs(satv(abs(uv % lod1) / dudv) * 2.0 - float2(1.0)));
-    float lod2a = max2(float2(1.0) - abs(satv(abs(uv % lod2) / dudv) * 2.0 - float2(1.0)));
+    float lod0a = max2(float2(1.0) - abs(satv(mod(uv, lod0) / dudv) * 2.0 - float2(1.0)));
+    float lod1a = max2(float2(1.0) - abs(satv(mod(uv, lod1) / dudv) * 2.0 - float2(1.0)));
+    float lod2a = max2(float2(1.0) - abs(satv(mod(uv, lod2) / dudv) * 2.0 - float2(1.0)));
 
     uv -= camPos;
 
