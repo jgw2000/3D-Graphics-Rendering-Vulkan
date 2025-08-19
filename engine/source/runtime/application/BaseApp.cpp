@@ -16,6 +16,7 @@ namespace jgw
         cameraPtr = std::make_unique<Camera>();
         canvas3D = std::make_unique<LineCanvas3D>();
         canvas2D = std::make_unique<LineCanvas2D>();
+        canvasGrid = std::make_unique<GridCanvas>();
     }
 
     void BaseApp::Start()
@@ -272,6 +273,9 @@ namespace jgw
         if (!canvas3D->Initialize(*contextPtr))
             return false;
 
+        if (!canvasGrid->Initialize(*contextPtr))
+            return false;
+
         return OnInit();
     }
 
@@ -331,6 +335,7 @@ namespace jgw
         OnCleanup();
 
         cameraPtr.reset();
+        canvasGrid.reset();
         canvas3D.reset();
         canvas2D.reset();
         imguiPtr.reset();

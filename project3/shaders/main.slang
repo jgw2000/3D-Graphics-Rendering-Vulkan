@@ -24,7 +24,8 @@ struct PushConstantData
 };
 [[vk::push_constant]] PushConstantData pcData;
 
-static float3 bc[3] = {
+static float3 bc[3] =
+{
     1.0, 0.0, 0.0,
     0.0, 1.0, 0.0,
     0.0, 0.0, 1.0

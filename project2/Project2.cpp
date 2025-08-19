@@ -38,6 +38,10 @@ namespace jgw
     void Project2::OnUpdate(double delta)
     {
         cameraPtr->Update(delta);
+
+        pcData.view = cameraPtr->GetViewMatrix();
+        pcData.proj = cameraPtr->GetProjMatrix();
+        pcData.cameraPos = glm::vec4(cameraPtr->GetPosition(), 1);
     }
 
     void Project2::OnRender(vk::CommandBuffer commandBuffer)
@@ -100,11 +104,6 @@ namespace jgw
             .extent = extent
         };
         commandBuffer.setScissor(0, 1, &scissor);
-
-        const float ratio = extent.width / (float)extent.height;
-        pcData.view = cameraPtr->GetViewMatrix();
-        pcData.proj = cameraPtr->GetProjMatrix();
-        pcData.cameraPos = glm::vec4(cameraPtr->GetPosition(), 1);
 
         commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstantData), &pcData);
         commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);

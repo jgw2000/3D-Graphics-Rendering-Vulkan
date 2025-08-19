@@ -1,5 +1,6 @@
 
-static float3 position[8] = {
+static float3 position[8] =
+{
     -100.0, -100.0, -100.0,
     100.0, -100.0, -100.0,
     100.0, 100.0, -100.0,
@@ -11,7 +12,8 @@ static float3 position[8] = {
     -100.0, 100.0, 100.0,
 };
 
-static uint indices[36] = {
+static uint indices[36] =
+{
     1, 5, 6, 6, 2, 1,   // +x
     4, 0, 3, 3, 7, 4,   // -x
     3, 2, 6, 6, 7, 3,   // +y

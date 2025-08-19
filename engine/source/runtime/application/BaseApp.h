@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "FpsCounter.h"
 #include "LineCanvas.h"
+#include "GridCanvas.h"
 
 #define IMGUI_IMPL_VULKAN_NO_PROTOTYPES
 #include "imgui.h"
@@ -68,6 +69,7 @@ namespace jgw
         std::unique_ptr<Camera> cameraPtr;
         std::unique_ptr<LineCanvas3D> canvas3D;
         std::unique_ptr<LineCanvas2D> canvas2D;
+        std::unique_ptr<GridCanvas> canvasGrid;
 
         struct MouseState
         {

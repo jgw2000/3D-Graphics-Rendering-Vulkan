@@ -1,5 +1,6 @@
 
-float2 positions[3] = {
+float2 positions[3] =
+{
     0.0, -0.5,
     -0.5, 0.5,
     0.5, 0.5
