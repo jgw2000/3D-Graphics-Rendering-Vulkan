@@ -28,10 +28,10 @@
 ## 编译运行
 In the project root directory "Open Git Bash here", execute "bash build.sh" and it will generate VS project solution in the build directory.
 
-### Project 1
+### Project 0
 ![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/results/project1.png)
 
-### Project 2
+### Project 1
 ![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/results/project2.png)
 
 * Rendering ImGui user interface
@@ -40,7 +40,7 @@ In the project root directory "Open Git Bash here", execute "bash build.sh" and 
 * Using cube map textures
 * Using storage buffer
 
-### Project 3
+### Project 2
 
 * Generating LOD meshes using MeshOptimizer
 * Using geometry shader for wireframe rendering

@@ -4,13 +4,6 @@
 
 namespace jgw
 {
-    struct VertexData
-    {
-        glm::vec3 pos;
-        glm::vec3 normal;
-        glm::vec2 uv;
-    };
-
     class Project2 : public BaseApp
     {
     public:
@@ -24,28 +17,20 @@ namespace jgw
         virtual void OnRender(vk::CommandBuffer commandBuffer) override;
         virtual void OnCleanup() override;
         virtual void OnResize(int width, int height) override;
-        virtual void OnGizmos() override;
 
     private:
         bool LoadModel();
-        bool CreateDescriptors();
         bool CreatePipeline();
         void SetupCamera();
+        void OptimizeMesh();
 
-        std::vector<VertexData> vertices;
+        std::vector<glm::vec3> vertices;
         std::vector<uint32_t> indices;
+        std::vector<uint32_t> indicesLod;
 
         std::unique_ptr<VulkanBuffer> vertexBuffer;
         std::unique_ptr<VulkanBuffer> indexBuffer;
         std::unique_ptr<VulkanPipeline> pipeline;
-        std::unique_ptr<VulkanPipeline> skyboxPipeline;
-        std::unique_ptr<VulkanTexture> modelTexture;
-        std::unique_ptr<VulkanTexture> cubeTexture;
-
-        vk::Sampler sampler{};
-        vk::DescriptorPool descriptorPool{};
-        vk::DescriptorSet descriptorSet{};
-        vk::DescriptorSetLayout descriptorSetLayout{};
 
         struct PushConstantData
         {

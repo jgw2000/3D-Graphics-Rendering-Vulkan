@@ -10,6 +10,6 @@ find_package(Vulkan REQUIRED SPIRV-Tools)
 include_directories(${Vulkan_INCLUDE_DIR})
 
 add_subdirectory(engine)
+add_subdirectory(project0)
 add_subdirectory(project1)
 add_subdirectory(project2)
-add_subdirectory(project3)
