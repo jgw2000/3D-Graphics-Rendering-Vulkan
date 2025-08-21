@@ -29,10 +29,10 @@
 In the project root directory "Open Git Bash here", execute "bash build.sh" and it will generate VS project solution in the build directory.
 
 ### Project 0
-![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/results/project1.png)
+![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/results/project0.png)
 
 ### Project 1
-![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/results/project2.png)
+![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/results/project1.png)
 
 * Rendering ImGui user interface
 * Implementing an immediate-mode 3D drawing canvas
