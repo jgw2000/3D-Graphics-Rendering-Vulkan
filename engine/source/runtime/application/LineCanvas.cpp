@@ -114,9 +114,12 @@ namespace jgw
             { .stageFlags = vk::ShaderStageFlagBits::eVertex, .offset = 0, .size = sizeof(PushConstantData) }
         };
 
-        LinePipelineBuilder pd;
+        PipelineBuilder pd;
         pd.AddShader(vk::ShaderStageFlagBits::eVertex, "../engine/shaders/line.vert.spv");
         pd.AddShader(vk::ShaderStageFlagBits::eFragment, "../engine/shaders/line.frag.spv");
+        pd.InputAssemblyCI().topology = vk::PrimitiveTopology::eLineList;
+        pd.RasterizationStateCI().polygonMode = vk::PolygonMode::eLine;
+        pd.RasterizationStateCI().cullMode = vk::CullModeFlagBits::eNone;
         pd.SetPushConstantRanges(pushConstantRanges);
 
         linePipeline = context.CreateGraphicsPipeline(pd);
@@ -308,33 +311,5 @@ namespace jgw
             for (int i = 0; i != gridLines; i++, p1 += s1, p2 += s2)
                 Line(p1, p2, gridColor);
         }
-    }
-
-    vk::PipelineInputAssemblyStateCreateInfo LinePipelineBuilder::BuildInputAssemblyState()
-    {
-        vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateCI{
-            .topology = vk::PrimitiveTopology::eLineList,
-            .primitiveRestartEnable = vk::False
-        };
-
-        return inputAssemblyStateCI;
-    }
-
-    vk::PipelineRasterizationStateCreateInfo LinePipelineBuilder::BuildRasterizationState()
-    {
-        vk::PipelineRasterizationStateCreateInfo rasterizationStateCI{
-            .depthClampEnable = vk::False,
-            .rasterizerDiscardEnable = vk::False,
-            .polygonMode = vk::PolygonMode::eLine,
-            .cullMode = vk::CullModeFlagBits::eNone,
-            .frontFace = vk::FrontFace::eCounterClockwise,
-            .depthBiasEnable = vk::False,
-            .depthBiasConstantFactor = 0.0f,
-            .depthBiasClamp = 0.0f,
-            .depthBiasSlopeFactor = 0.0f,
-            .lineWidth = 1.0f
-        };
-
-        return rasterizationStateCI;
     }
 }

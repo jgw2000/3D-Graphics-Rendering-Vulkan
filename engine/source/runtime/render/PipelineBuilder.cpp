@@ -19,129 +19,34 @@ namespace jgw
         return shaderStages;
     }
 
-    vk::PipelineVertexInputStateCreateInfo PipelineBuilder::BuildVertexInputState()
+    void PipelineBuilder::SetVertexBindingDescriptions(std::vector<vk::VertexInputBindingDescription>& descriptions)
     {
-        vk::PipelineVertexInputStateCreateInfo vertexInputStateCI{
-            .vertexBindingDescriptionCount = static_cast<uint32_t>(vertexBindingDescriptions.size()),
-            .pVertexBindingDescriptions = vertexBindingDescriptions.data(),
-            .vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributeDescriptions.size()),
-            .pVertexAttributeDescriptions = vertexAttributeDescriptions.data()
-        };
-
-        return vertexInputStateCI;
+        vertexInputStateCI.vertexBindingDescriptionCount = static_cast<uint32_t>(descriptions.size());
+        vertexInputStateCI.pVertexBindingDescriptions = descriptions.data();
     }
 
-    vk::PipelineInputAssemblyStateCreateInfo PipelineBuilder::BuildInputAssemblyState()
+    void PipelineBuilder::SetVertexAttributeDescriptions(std::vector<vk::VertexInputAttributeDescription>& descriptions)
     {
-        vk::PipelineInputAssemblyStateCreateInfo inputAssemblyStateCI{
-            .topology = vk::PrimitiveTopology::eTriangleList,
-            .primitiveRestartEnable = vk::False
-        };
-        
-        return inputAssemblyStateCI;
+        vertexInputStateCI.vertexAttributeDescriptionCount = static_cast<uint32_t>(descriptions.size());
+        vertexInputStateCI.pVertexAttributeDescriptions = descriptions.data();
     }
 
-    vk::PipelineViewportStateCreateInfo PipelineBuilder::BuildViewportState()
+    void PipelineBuilder::SetColorBlendAttachments(std::vector<vk::PipelineColorBlendAttachmentState>& states)
     {
-        vk::PipelineViewportStateCreateInfo viewportStateCI{
-            .viewportCount = 1,
-            .pViewports = nullptr, // Viewports will be set dynamically
-            .scissorCount = 1,
-            .pScissors = nullptr   // Scissors will be set dynamically
-        };
-        return viewportStateCI;
+        colorBlendStateCI.attachmentCount = static_cast<uint32_t>(states.size());
+        colorBlendStateCI.pAttachments = states.data();
     }
 
-    vk::PipelineRasterizationStateCreateInfo PipelineBuilder::BuildRasterizationState()
+    void PipelineBuilder::SetDescriptorSetLayouts(std::vector<vk::DescriptorSetLayout>& layouts)
     {
-        vk::PipelineRasterizationStateCreateInfo rasterizationStateCI{
-            .depthClampEnable = vk::False,
-            .rasterizerDiscardEnable = vk::False,
-            .polygonMode = vk::PolygonMode::eFill,
-            .cullMode = vk::CullModeFlagBits::eBack,
-            .frontFace = vk::FrontFace::eCounterClockwise,
-            .depthBiasEnable = vk::False,
-            .depthBiasConstantFactor = 0.0f,
-            .depthBiasClamp = 0.0f,
-            .depthBiasSlopeFactor = 0.0f,
-            .lineWidth = 1.0f
-        };
-
-        return rasterizationStateCI;
+        layoutCI.setLayoutCount = static_cast<uint32_t>(layouts.size());
+        layoutCI.pSetLayouts = layouts.data();
     }
 
-    vk::PipelineMultisampleStateCreateInfo PipelineBuilder::BuildMultisampleState()
+    void PipelineBuilder::SetPushConstantRanges(std::vector<vk::PushConstantRange>& ranges)
     {
-        vk::PipelineMultisampleStateCreateInfo multisampleStateCI{
-            .rasterizationSamples = vk::SampleCountFlagBits::e1,
-            .sampleShadingEnable = vk::False,
-            .minSampleShading = 1.0f,
-            .pSampleMask = nullptr,
-            .alphaToCoverageEnable = vk::False,
-            .alphaToOneEnable = vk::False
-        };
-
-        return multisampleStateCI;
-    }
-
-    vk::PipelineDepthStencilStateCreateInfo PipelineBuilder::BuildDepthStencilState()
-    {
-        vk::PipelineDepthStencilStateCreateInfo depthStencilStateCI{
-            .depthTestEnable = vk::True,
-            .depthWriteEnable = vk::True,
-            .depthCompareOp = vk::CompareOp::eLess,
-        };
-
-        return depthStencilStateCI;
-    }
-
-    vk::PipelineColorBlendStateCreateInfo PipelineBuilder::BuildColorBlendState()
-    {
-        colorBlendAttachmentStates.push_back(
-            vk::PipelineColorBlendAttachmentState{
-                .blendEnable = vk::True,
-                .srcColorBlendFactor = vk::BlendFactor::eSrcAlpha,
-                .dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha,
-                .colorBlendOp = vk::BlendOp::eAdd,
-                .srcAlphaBlendFactor = vk::BlendFactor::eOne,
-                .dstAlphaBlendFactor = vk::BlendFactor::eZero,
-                .alphaBlendOp = vk::BlendOp::eAdd,
-                .colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
-            }
-        );
-
-        vk::PipelineColorBlendStateCreateInfo colorBlendStateCI{
-            .logicOpEnable = vk::False,
-            .logicOp = vk::LogicOp::eClear,
-            .attachmentCount = static_cast<uint32_t>(colorBlendAttachmentStates.size()),
-            .pAttachments = colorBlendAttachmentStates.data()
-        };
-
-        return colorBlendStateCI;
-    }
-
-    vk::PipelineDynamicStateCreateInfo PipelineBuilder::BuildDynamicState()
-    {
-        dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
-
-        vk::PipelineDynamicStateCreateInfo dynamicStateCI{
-            .dynamicStateCount = static_cast<uint32_t>(dynamicStates.size()),
-            .pDynamicStates = dynamicStates.data()
-        };
-
-        return dynamicStateCI;
-    }
-
-    vk::PipelineLayout PipelineBuilder::BuildLayout(const vk::Device& device)
-    {
-        vk::PipelineLayoutCreateInfo pipelineLayoutCI{
-            .setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size()),
-            .pSetLayouts = descriptorSetLayouts.data(),
-            .pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size()),
-            .pPushConstantRanges = pushConstantRanges.data()
-        };
-
-        return device.createPipelineLayout(pipelineLayoutCI);
+        layoutCI.pushConstantRangeCount = static_cast<uint32_t>(ranges.size());
+        layoutCI.pPushConstantRanges = ranges.data();
     }
 
     vk::ShaderModule PipelineBuilder::LoadShader(const char* filename, const vk::Device& device)

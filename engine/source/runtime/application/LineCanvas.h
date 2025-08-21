@@ -83,15 +83,4 @@ namespace jgw
         std::unique_ptr<VulkanBuffer> lineBuffer;
         std::unique_ptr<VulkanPipeline> linePipeline;
     };
-
-    class LinePipelineBuilder final : public PipelineBuilder
-    {
-    public:
-        CLASS_COPY_MOVE_DELETE(LinePipelineBuilder)
-
-        LinePipelineBuilder() = default;
-
-        virtual vk::PipelineInputAssemblyStateCreateInfo BuildInputAssemblyState() override;
-        virtual vk::PipelineRasterizationStateCreateInfo BuildRasterizationState() override;
-    };
 }

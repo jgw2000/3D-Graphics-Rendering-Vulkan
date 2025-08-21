@@ -43,5 +43,5 @@ In the project root directory "Open Git Bash here", execute "bash build.sh" and 
 ### Project 3
 
 * Generating LOD meshes using MeshOptimizer
-* Implementing programmable vertex pulling
 * Using geometry shader for wireframe rendering
+* Using tessellation shader for hardware LOD

@@ -8,6 +8,7 @@ namespace jgw
     Project3::Project3(const WindowConfig& config) : BaseApp(config)
     {
         contextPtr->GetDeviceFeatures().geometryShader = vk::True;
+        contextPtr->GetDeviceFeatures().tessellationShader = vk::True;
     }
 
     bool Project3::OnInit()
@@ -35,6 +36,7 @@ namespace jgw
 
         pcData.view = cameraPtr->GetViewMatrix();
         pcData.proj = cameraPtr->GetProjMatrix();
+        pcData.cameraPos = glm::vec4(cameraPtr->GetPosition(), 1);
 
         canvasGrid->SetMatrix(pcData.proj * pcData.view);
         canvasGrid->SetCameraPos(glm::vec4(cameraPtr->GetPosition(), 1));
@@ -100,12 +102,12 @@ namespace jgw
         commandBuffer.setScissor(0, 1, &scissor);
 
         pcData.model = glm::rotate(glm::mat4(1.0f), -glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &pcData);
+        commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eTessellationControl, 0, sizeof(PushConstantData), &pcData);
         commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
 
         commandBuffer.bindIndexBuffer(indexLodBuffer->Handle(), 0, vk::IndexType::eUint32);
         pcData.model = glm::translate(glm::mat4(1.0f), glm::vec3(1, 0, 0)) * pcData.model;
-        commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstantData), &pcData);
+        commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eTessellationControl, 0, sizeof(PushConstantData), &pcData);
         commandBuffer.drawIndexed(indicesLod.size(), 1, 0, 0, 0);
 
         canvas3D->Render(*contextPtr);
@@ -213,13 +215,18 @@ namespace jgw
         };
 
         std::vector<vk::PushConstantRange> pushConstantRanges = {
-            { .stageFlags = vk::ShaderStageFlagBits::eVertex, .offset = 0, .size = sizeof(PushConstantData) }
+            { .stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eTessellationControl, .offset = 0, .size = sizeof(PushConstantData) }
         };
 
         PipelineBuilder pd;
         pd.AddShader(vk::ShaderStageFlagBits::eVertex, "shaders/main.vert.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eTessellationControl, "shaders/main.tesc.spv");
+        pd.AddShader(vk::ShaderStageFlagBits::eTessellationEvaluation, "shaders/main.tese.spv");
         pd.AddShader(vk::ShaderStageFlagBits::eGeometry, "shaders/main.geom.spv");
         pd.AddShader(vk::ShaderStageFlagBits::eFragment, "shaders/main.frag.spv");
+        pd.InputAssemblyCI().topology = vk::PrimitiveTopology::ePatchList;
+        pd.RasterizationStateCI().cullMode = vk::CullModeFlagBits::eFront;
+        pd.TessellationStateCI().patchControlPoints = 3;
         pd.SetVertexBindingDescriptions(bindingDescriptions);
         pd.SetVertexAttributeDescriptions(attributeDescriptions);
         pd.SetPushConstantRanges(pushConstantRanges);

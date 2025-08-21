@@ -329,15 +329,7 @@ namespace jgw
     std::unique_ptr<VulkanPipeline> VulkanContext::CreateGraphicsPipeline(PipelineBuilder& pd)
     {
         auto shaderStages = pd.BuildShaderStages(device);
-        auto vertexInputState = pd.BuildVertexInputState();
-        auto inputAssemblyState = pd.BuildInputAssemblyState();
-        auto viewportState = pd.BuildViewportState();
-        auto rasterizationState = pd.BuildRasterizationState();
-        auto multisampleState = pd.BuildMultisampleState();
-        auto depthStencilState = pd.BuildDepthStencilState();
-        auto colorBlendState = pd.BuildColorBlendState();
-        auto dynamicState = pd.BuildDynamicState();
-        auto pipelineLayout = pd.BuildLayout(device);
+        auto pipelineLayout = device.createPipelineLayout(pd.PipelineLayoutCI());
 
         std::vector<vk::Format> colorFormats = { swapchainPtr->GetFormat() };
         vk::PipelineRenderingCreateInfo renderingCI{
@@ -350,14 +342,15 @@ namespace jgw
             .pNext = &renderingCI,
             .stageCount = static_cast<uint32_t>(shaderStages.size()),
             .pStages = shaderStages.data(),
-            .pVertexInputState = &vertexInputState,
-            .pInputAssemblyState = &inputAssemblyState,
-            .pViewportState = &viewportState,
-            .pRasterizationState = &rasterizationState,
-            .pMultisampleState = &multisampleState,
-            .pDepthStencilState = &depthStencilState,
-            .pColorBlendState = &colorBlendState,
-            .pDynamicState = &dynamicState,
+            .pVertexInputState = &pd.VertexInputStateCI(),
+            .pInputAssemblyState = &pd.InputAssemblyCI(),
+            .pTessellationState = &pd.TessellationStateCI(),
+            .pViewportState = &pd.ViewportStateCI(),
+            .pRasterizationState = &pd.RasterizationStateCI(),
+            .pMultisampleState = &pd.MultisampleStateCI(),
+            .pDepthStencilState = &pd.DepthStencilStateCI(),
+            .pColorBlendState = &pd.ColorBlendStateCI(),
+            .pDynamicState = &pd.DynamicStateCI(),
             .layout = pipelineLayout,
         };
 
