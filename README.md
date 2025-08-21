@@ -45,3 +45,5 @@ In the project root directory "Open Git Bash here", execute "bash build.sh" and 
 * Generating LOD meshes using MeshOptimizer
 * Using geometry shader for wireframe rendering
 * Using tessellation shader for hardware LOD
+* Implementing gpu instancing
+* Implementing an infinite grid shader

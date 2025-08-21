@@ -51,10 +51,15 @@ static float3 bc[3] =
 };
 
 [shader("vertex")]
-VSOutput vertexMain(VSInput input)
+VSOutput vertexMain(VSInput input, uint InstanceID : SV_InstanceID)
 {
+    float x = -5.0 + (InstanceID % 10);
+    float z = -5.0 + (InstanceID / 10);
+
     VSOutput output;
     output.worldPos = mul(pcData.model, float4(input.pos, 1.0)).xyz;
+    output.worldPos.x += x;
+    output.worldPos.z += z;
     output.pos = mul(pcData.proj, mul(pcData.view, float4(output.worldPos, 1.0)));
     return output;
 }

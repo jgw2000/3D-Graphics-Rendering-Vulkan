@@ -122,7 +122,11 @@ namespace jgw
             };
             queueCreateInfos.push_back(deviceQueueCI);
 
+            vk::PhysicalDeviceVulkan11Features shaderDrawParamFeatures{
+                .shaderDrawParameters = vk::True
+            };
             vk::PhysicalDeviceBufferDeviceAddressFeatures deviceAddressFeatures{
+                .pNext = &shaderDrawParamFeatures,
                 .bufferDeviceAddress = vk::True
             };
             vk::PhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeature{

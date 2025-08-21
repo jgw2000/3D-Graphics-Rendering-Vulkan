@@ -103,12 +103,7 @@ namespace jgw
 
         pcData.model = glm::rotate(glm::mat4(1.0f), -glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eTessellationControl, 0, sizeof(PushConstantData), &pcData);
-        commandBuffer.drawIndexed(indices.size(), 1, 0, 0, 0);
-
-        commandBuffer.bindIndexBuffer(indexLodBuffer->Handle(), 0, vk::IndexType::eUint32);
-        pcData.model = glm::translate(glm::mat4(1.0f), glm::vec3(1, 0, 0)) * pcData.model;
-        commandBuffer.pushConstants(pipeline->Layout(), vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eTessellationControl, 0, sizeof(PushConstantData), &pcData);
-        commandBuffer.drawIndexed(indicesLod.size(), 1, 0, 0, 0);
+        commandBuffer.drawIndexed(indices.size(), 100, 0, 0, 0);
 
         canvas3D->Render(*contextPtr);
         canvasGrid->Render(*contextPtr);
@@ -122,7 +117,6 @@ namespace jgw
     {
         vertexBuffer.reset();
         indexBuffer.reset();
-        indexLodBuffer.reset();
         pipeline.reset();
     }
 
@@ -184,21 +178,9 @@ namespace jgw
             vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst
         );
 
-        std::unique_ptr<VulkanBuffer> stagingIndexLodBuffer = contextPtr->CreateBuffer(
-            sizeof(uint32_t) * indicesLod.size(),
-            vk::BufferUsageFlagBits::eTransferSrc,
-            vma::AllocationCreateFlagBits::eMapped | vma::AllocationCreateFlagBits::eHostAccessSequentialWrite
-        );
-
-        indexLodBuffer = contextPtr->CreateBuffer(
-            sizeof(uint32_t) * indicesLod.size(),
-            vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst
-        );
-
         contextPtr->BeginCommand();
         contextPtr->UploadBuffer(vertices.data(), stagingVertexBuffer.get(), vertexBuffer.get());
         contextPtr->UploadBuffer(indices.data(), stagingIndexBuffer.get(), indexBuffer.get());
-        contextPtr->UploadBuffer(indicesLod.data(), stagingIndexLodBuffer.get(), indexLodBuffer.get());
         contextPtr->EndCommand();
 
         return true;

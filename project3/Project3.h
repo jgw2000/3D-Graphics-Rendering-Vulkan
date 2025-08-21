@@ -30,7 +30,6 @@ namespace jgw
 
         std::unique_ptr<VulkanBuffer> vertexBuffer;
         std::unique_ptr<VulkanBuffer> indexBuffer;
-        std::unique_ptr<VulkanBuffer> indexLodBuffer;
         std::unique_ptr<VulkanPipeline> pipeline;
 
         struct PushConstantData
