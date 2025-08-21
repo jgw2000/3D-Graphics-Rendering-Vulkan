@@ -41,6 +41,7 @@ In the project root directory "Open Git Bash here", execute "bash build.sh" and 
 * Using storage buffer
 
 ### Project 2
+![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/results/project2.png)
 
 * Generating LOD meshes using MeshOptimizer
 * Using geometry shader for wireframe rendering
