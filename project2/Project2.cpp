@@ -122,8 +122,6 @@ namespace jgw
 
     void Project2::OnResize(int width, int height)
     {
-        BaseApp::OnResize(width, height);
-
         auto extent = contextPtr->GetSwapchain()->GetExtent();
         const float aspect = extent.width / (float)extent.height;
         cameraPtr->SetAspectRatio(aspect);
@@ -207,7 +205,6 @@ namespace jgw
         pd.AddShader(vk::ShaderStageFlagBits::eGeometry, "shaders/main.geom.spv");
         pd.AddShader(vk::ShaderStageFlagBits::eFragment, "shaders/main.frag.spv");
         pd.InputAssemblyCI().topology = vk::PrimitiveTopology::ePatchList;
-        pd.RasterizationStateCI().cullMode = vk::CullModeFlagBits::eFront;
         pd.TessellationStateCI().patchControlPoints = 3;
         pd.SetVertexBindingDescriptions(bindingDescriptions);
         pd.SetVertexAttributeDescriptions(attributeDescriptions);

@@ -137,8 +137,6 @@ namespace jgw
 
     void Project1::OnResize(int width, int height)
     {
-        BaseApp::OnResize(width, height);
-
         auto extent = contextPtr->GetSwapchain()->GetExtent();
         const float aspect = extent.width / (float)extent.height;
         cameraPtr->SetAspectRatio(aspect);

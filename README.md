@@ -48,3 +48,7 @@ In the project root directory "Open Git Bash here", execute "bash build.sh" and 
 * Using tessellation shader for hardware LOD
 * Implementing gpu instancing
 * Implementing an infinite grid shader
+
+### Project 3
+* Implementing mesh preprocessing and converting pipeline
+* Implementing indirect rendering

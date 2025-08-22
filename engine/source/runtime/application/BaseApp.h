@@ -27,6 +27,7 @@ namespace jgw
         BaseApp(const WindowConfig& config = {});
 
         void Start();
+        void Resize(int width, int height);
 
     protected:
         virtual bool OnInit() { return true; }
@@ -39,7 +40,7 @@ namespace jgw
         virtual void OnMouse(int button, int action, int modes);
         virtual void OnMouseMove(float x, float y);
         virtual void OnMouseScroll(float x, float y);
-        virtual void OnResize(int width, int height);
+        virtual void OnResize(int width, int height) {}
 
         virtual std::vector<const char*> GetInstanceLayers() const;
         virtual std::vector<const char*> GetInstanceExtensions() const;

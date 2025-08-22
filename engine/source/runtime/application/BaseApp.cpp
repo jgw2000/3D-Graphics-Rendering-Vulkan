@@ -47,6 +47,12 @@ namespace jgw
         Cleanup();
     }
 
+    void BaseApp::Resize(int width, int height)
+    {
+        contextPtr->WindowResize();
+        OnResize(width, height);
+    }
+
     void BaseApp::OnKey(int key, int scancode, int action, int mods)
     {
         const bool pressed = action != GLFW_RELEASE;
@@ -93,11 +99,6 @@ namespace jgw
     void BaseApp::OnMouseScroll(float x, float y)
     {
         cameraPtr->Scroll(y);
-    }
-
-    void BaseApp::OnResize(int width, int height)
-    {
-        contextPtr->WindowResize();
     }
 
     std::vector<const char*> BaseApp::GetInstanceLayers() const
@@ -414,7 +415,7 @@ namespace jgw
 
             if (app)
             {
-                app->OnResize(width, height);
+                app->Resize(width, height);
                 app->iconified = false;
             }
         });

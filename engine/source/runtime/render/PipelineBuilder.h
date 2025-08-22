@@ -52,7 +52,7 @@ namespace jgw
         };
 
         vk::PipelineTessellationDomainOriginStateCreateInfo tessellationDomainOriginStateCI{
-            .domainOrigin = vk::TessellationDomainOrigin::eUpperLeft
+            .domainOrigin = vk::TessellationDomainOrigin::eLowerLeft
         };
 
         vk::PipelineTessellationStateCreateInfo tessellationStateCI{
