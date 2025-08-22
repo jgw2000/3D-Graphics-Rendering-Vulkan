@@ -50,5 +50,7 @@ In the project root directory "Open Git Bash here", execute "bash build.sh" and 
 * Implementing an infinite grid shader
 
 ### Project 3
+![](https://github.com/jgw2000/3D-Graphics-Rendering-Vulkan/blob/main/results/project3.png)
+
 * Implementing mesh preprocessing and converting pipeline
 * Implementing indirect rendering

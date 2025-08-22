@@ -34,7 +34,6 @@
 .vscode
 *.ini
 
-cache
 build
 deps/*
 !deps/bootstrap.json

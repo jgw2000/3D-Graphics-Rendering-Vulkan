@@ -133,7 +133,7 @@ namespace jgw
         for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
         {
             fflush(stdout);
-            meshData.meshes.push_back(ConvertAIMesh(scene->mMeshes[i], meshData, indexOffset, vertexOffset));
+            meshData.meshes.push_back(ConvertAIMesh(scene->mMeshes[i], meshData, indexOffset, vertexOffset, true));
         }
     }
 
@@ -231,8 +231,6 @@ namespace jgw
             outLods.push_back(srcIndices);
         else
             ProcessLOD(srcIndices, srcVertices, outLods);
-
-        spdlog::info("Calculated LOD count: {}", outLods.size());
 
         Mesh result =
         {
