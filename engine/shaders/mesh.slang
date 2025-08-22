@@ -66,7 +66,7 @@ float4 fragmentMain(GSOutput input)
     float edgeFactor = min(min(a3.x, a3.y), a3.z);
 
     float NdotL = clamp(dot(normalize(input.normal), normalize(float3(-1, -1, -1))), 0.5, 1.0);
-    float4 color = float4(1.0, 1.0, 1.0, 1.0) * NdotL;
+    float3 color = float3(1.0, 1.0, 1.0) * NdotL;
 
-    return lerp(float4(0.1), color, edgeFactor);
+    return float4(lerp(float3(0.1f), color, edgeFactor), 1.0);
 }
